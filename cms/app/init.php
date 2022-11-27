@@ -25,6 +25,10 @@ try {
   die($e->getMessage());
 }
 
+
+require(__DIR__."/settings.php");
+
+
 $helper_php_files=glob(__DIR__."/helper/*.php");
 
 foreach ($helper_php_files as $helper_file) {

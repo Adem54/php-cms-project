@@ -889,6 +889,577 @@ BURAYA KADAR NELER YAPTIK
 PROJEDEKI ANA YAPIMIZI OLUSTURMUS OLDUK
 ARTIK ISTEDIGIMZ KADAR SAYFA OLUSTURUP ISTEDGIMZ KADAR DA ISLEM YAPTIRMAYA HAZIR BIR SISTEMIMIZ VAR ARTIK
 
+ADMIN PANELINDEKI TEMANIN ENTEGRE EDILMESI
+179.Admin Tasariminin Entegresi 
+https://github.com/tayfunerbilen/wp-admin-html-template
+github adresinden
+ admin paneli temasinin icinde bulundugu  wp-admin-html-template-master zip dosyasini 
+ indirebilirz
+ indirdgimiz dosyanin assets klasorunun icirisindeki klasoruleri 
+ images,sass,scripts,styles, vendor klasorlerini cms/admin altinda public diye bir klasor olusturup o klasor altina yapistiriyoruz
+
+ BESTPRACTISE-36
+helper klasoru altindaki template.php icine geliriz orda hazirladimgiz link ile ilgili, href ile ilgli hem css, dosyasi link icinde bir html dosyasina include ettigmiz zaman kullancagimiz hem de url-link leri  yaparken a href lerde kullanabilmek icin yaptigmiz fonksioyonlardan bir de cms deki admin imizi icin yapacagiz
+
+helper/template.php 
+function admin_site_url($url=false)
+{
+    return URL. "/admin/". $url;
+    define("URL","http://localhost/test/php-cms-project/cms/admin");
+}
+
+function admin_public_url($url=false){
+    return URL."/admin/public/".$url;
+    http://localhost/test/php-cms-project/cms/admin/public/style.css
+}
+
+
+BESTPRACTISE-37 
+ADMIN TEMPLATE PARCALAMA VE STATIC VE DINAMIK KISIMLARA GORE AYIRMA 
+
+ ADMIN INDEX.PHP TEMPLATE INI CMS/ADMIN/VIEW/INDEX.PHP YE YAPISTIRMA
+SONRA CMS/ADMIN/VIEW/INDEX.PHP DOSYAMIZIN ICERIGINI TAMAMEN SILIP ONUN ICERISINE WP-ADMIN-HTML-TEMPLATE-MASTER ICINDEKI INDEX.PHP DOSYASININ ICERIGINI YAPISTIRIRIZ
+
+admin/view/index.php mizde body etiketleri ustundeki script taglari icindeki ckeditoru yorum satirina aliriz simdilik
+Bizim admin paneli temamizda dinamik olacak olan kisim content class ina sahip olan div etiketi icindeki alandir
+Ondan dolayi div container class tan yukarisi tamamen view icerisinde static isminde bir klasor olusturup onun altinda header.php iceriisine yerlestirilecektir
+Ayrica container class inin altinda kalan kisim olan div ,body ve html kapanma etiketini de yine static klasoru icinde footer.php ye alacagiz
+Bu islemleri yaptikan sonra da admin/view/index.php 
+de static altindaki header.php ve footer.php ye buraya admin de require  islemi icin hazirladigmiz fonksiyon vasitasi ile require ederiz
+
+
+<?php require admin_view("static/header");  ?>
+<div class="content">
+. 
+. 
+.
+</div>
+ <?php require admin_view("static/footer");  ?>
+
+Sonra da static/header.php deki asset url lerini degistirmem gerekecek, bizim assetleri admin altinda public klasoru altina koyudgumuz icin ordan cagiracagiz ve biz bu asset url lerini link ler altindaki href leri de cagirmak icin method olusturmustuk helper altinda, helper/template.php de onlari kullanacagiz tabi ki
+
+    <!--styles-->
+    <link rel="stylesheet" href="<?= admin_public_url("styles/main.css") ?>">
+
+    <!--scripts-->
+    <script src="<?= admin_public_url("scripts/jquery-1.12.2.min.js") ?>"></script>
+    <!-- <script src="https://cdn.ckeditor.com/4.5.7/basic/ckeditor.js"></script> -->
+    <script src="<?= admin_public_url("scripts/admin.js") ?>"></script>
+
+Simdi bu islemi yaptiktan sonra artik 
+http://localhost/test/php-cms-project/cms/admin/
+actigimizda admin temamzin goruntusunu guzel bir sekilde gorebiliriz
+
+Simdi wp-admin-html-template-master temamizin icerisinde hangi sayfalarimiz var mis admin imiz icin kullanacagimiz bakacak olursak eger login.php,lost-password.php,new-post.php, posts.php ve settings.php sayflarimiz var
+Bu sayfalari biz kendimiz cogaltarak admin sayfamizi olusturacagiz
+
+BESTPRACTISE-38
+admin/view/static/header.php de ki navbar ve sidebar menu kisimlari font-awesome ile yapilmis, bunlari dinamik hale getirecegiz bunlari nerde dinamik hale getiriyoruz, app/controller/admin.php de yapacagiz bunu, cunku biz 
+http://localhost/test/php-cms-project/cms/admin/
+url adresine girildiginde app/controller/admin.php ye geliyor calistirmak icin ve admin.php de onu cms/admin/controller/index.php nin calismasini sagliyor orda da tabi ki cms/admin/view/index.php calistiriliyor
+app/controller/admin.php
+Burda elimzde menu elemanlari ile ilgili verilen hazir bir menu data si yok ki zaten bu genellikle hep bu sekilde yapilir biz reactta da boyle yapmistik
+BESTPRACTISE-39 
+BU MANTIGI BIR KERE DAHA IYI KAVRAYALIM VE KIMI ZAMAN COK ISIMIZE YARIYOR BIZ HER ZAMAN BIZE VERILEN HAZIR DATALAR UZERINDE PROBLEMLERIMIZI COZEMEYEBILIRZ, BIR PROBLEMLE UGRASIRKEN KENDIMIZ DE PROBLEMIMIZIN COZUMUNU KOLAYLASTIRAN DATALAR OLUSTURMAYI HERZAMAN DUSUNEBILMELIYIZ... BU COOOOK ONEMLI BIR YAKLASIMDIR ....
+
+header.php de sidebar.php deki sidebar elemenlteri her birisi birer sayfaya gidecek, yani onmlar bizim sayfalarimz kullanici ordan tiklayarak admin de her birinisi ayri ayri acabilecek
+app/controller/admin.php 
+de sidebar datalarin  olustururken
+her bir menu elemaninda neler gosteriliyor ona bakalim 
+dinamik olarka degisen kisimlar bu kisimlar ozellikle
+
+-title
+-icon
+
+ <li>
+    <a href="#">
+        <span class="fa fa-tachometer"></span>
+        <span class="title">
+            Dashboard
+        </span>
+    </a>
+    </li>
+
+app/controller/admin.php de 
+
+$menu=[
+    "index"=>[
+        "title"=>"Homepage",
+        "icon"=>"tachometer"
+    ],
+    "users"=>[
+        "title"=>"Members",
+        "icon"=>"user",
+        "submenu"=>[
+            "add-user"=>"Add Member",
+            "get-users"=>"Show Members"
+        ]
+    ],
+    "setting"=>"Setting",
+    "icon"=>"cog"
+    ];
+
+admin/view/static/header.php de sidebar da 1 tane submenu lu menu ornegi birakriz sadece plugins kismini digerlerini siliyoruz cunku zaten dinamik yapacagiz burayi
+
+   
+
+    <!--sidebar-->
+    <div class="sidebar">
+        <ul>
+            <?php foreach ($menus as $value) : ?>
+                <li>
+                    <a href="#">
+                        <span class="fa fa-<?= $value["icon"]; ?>"></span>
+                        <span class="title">
+                            <?= $value["title"]; ?>
+                        </span>
+                    </a>
+                    <?php
+                    if (isset($value["submenu"])) {  ?>
+                        <ul class="sub-menu">
+                            <?php
+                            foreach ($value["submenu"] as $key => $value) {    ?>
+
+                                <li>
+                                    <a href="#">
+                                        <?php echo $value ?>
+                                    </a>
+                                </li>
+                            <?php     }
+
+                            ?>
+
+                        </ul>
+                    <?php        }
+
+                    ?>
+                </li>
+            <?php endforeach; ?>
+            <li class="line">
+                <span></span>
+            </li>
+        </ul>
+        <a href="#" class="collapse-menu">
+            <span class="fa fa-arrow-circle-left"></span>
+            <span class="title">
+                Collapse menu
+            </span>
+        </a>
+    </div>
+
+BESTPRACTISE-40 -SAYFALARIN HANGISI UZERINDE ISEK O SAYFA NIN ARKA PLAN RENGI OLMASI YANI ACTIVE OLMASININ SAGLANMASI
+
+Mantikken biz asgidaki url ile gelince admin altindaki index.php nin aktif olmasi gerekyor     
+http://localhost/test/php-cms-project/cms/admin/
+<?php echo route(1);//index tir  ?>
+ 
+ve de biz sidebar menu elementlerini dinamik bir sekilde listeledik ve orda biz sayfalari listeliyoruz ve bizim 1.sayfamiz index, ama eger direk admin sayfasi degil de diger sayfalarda olacaksa da o zaman da o sayfalar, users,settings gibi sayfalar gelsin yani sayfa gelme isi dinamik olsun istiyoruz
+
+$menus=[
+    "index"=>[
+        "title"=>"Homepage",
+        "icon"=>"tachometer"
+    ],
+    "users"=>[
+        "title"=>"Members",
+        "icon"=>"user",
+        "submenu"=>[
+            "add-user"=>"Add Member",
+            "get-users"=>"Show Members"
+        ]
+    ],
+    "setting"=>[
+        "title"=>"Setting",
+        "icon"=>"cog"
+    ]
+    ];
+
+<?php foreach ($menus as $mainUrl=> $value) : ?>
+                <li class="<?php echo route(1)==$mainUrl ? "active" : null ?>">
+
+
+   BESTPRACTISE-40 -SITE SAYFALARININ URL LERINI YAPALIM static/static/header.php de              
+        admin_site_url($mainUrl);   
+
+    <?php foreach ($menus as $mainUrl=> $value) : ?>
+                <li class="<?php echo route(1)==$mainUrl ? "active" : null ?>">
+                    <a href="<?php echo admin_site_url($mainUrl);  ?>">
+
+         VE SUBMENULER ICIN DE admin_site_url($url);   
+         
+ if (isset($value["submenu"])) {  ?>
+        <ul class="sub-menu">
+            <?php
+            foreach ($value["submenu"] as $url => $value) {    ?>
+                <li>
+                    <a href="<?= admin_site_url($url); ?>">
+                        <?php echo $value ?>
+                    </a>
+                </li>
+            <?php     }
+
+
+     Simdi ne duruma geldik artik biz static/header.php de 
+     menumuz de 
+     homepage e tiklaninca     
+     http://localhost/test/php-cms-project/cms/admin/index
+     memnbers a tiklaninca  
+     http://localhost/test/php-cms-project/cms/admin/users
+     ve settings e tiklaninca
+     http://localhost/test/php-cms-project/cms/admin/settings
+
+     bu adreslere gidiyor ve ornegin 
+     http://localhost/test/php-cms-project/cms/admin/settings
+     settings adresine gittiginde ne yapiyor 
+
+    cmd/app/controller/admin.php de 
+    
+    require(admin_controller(route(1))); 
+    url bu old. icin
+  http://localhost/test/php-cms-project/cms/admin/settings
+
+    bu kod sayesinde admin 0 .index iken 
+    settings 1. index oluyor 
+     require(admin_controller(route(1)));
+      require(admin_controller("settings"));
+      SEn diyor git cms/admin/controller da settings sayfasini ara bul diyor o da oraya gidiyor ondan dolayi da biz admin/controller altinda 1 tane settings.php olustrduk    ve icerisnde 
+      
+      <?php 
+require admin_view("settings");
+?>
+bu sekilde biz admin/controller altinda admin/view altindaki sayfalari cagirisp calistiriyoruz 
+Ve de view altindaki settings.php yi calistir dedik sonra da 
+admin/view altinda settings.php sayfasini olusturduk ve artik 
+admin/view/static/header.php de menulerde 
+nasil ki homepage e tiklayinca 
+http://localhost/test/php-cms-project/cms/admin/index
+gidip admin/view/index.php calistiriliyorsa 
+http://localhost/test/php-cms-project/cms/admin/settings
+menu cubugunda settins e tiklaninca artik adres cubugunda admin/settings e gidiyor ve bize admin/view/settings.php sayfasini gosteriyor
+Ayni seklde users icin de yapiyoruz
+Ayni sekilde alt menuler icinde sayfalari olusturarak tiklaninca o sayfalara gitmelerini saglamaliyiz 
+
+BESTPRCTISE-41
+Alt menulerin sayfalarini da olusturudgumuz zaman, soyle bir sorunla karsilasiyoruz Members uzerine gidip sonra onun bir alt menusu olan AddMenu ye tiklayip da addMenu sayfasini admin de addMenu sayfasini goruyoruz ancak, Members menu elemani aktif olmyor alt menusunu gosterince 
+
+Bunun icin li icindeki class da sorgumuzu biraz genisltiriz deriz ki eger donen menu elemani icinde submenu var ve o submenu icinde bizim aktif olan url mizdeki elemnt key ise dersek o zaman alt menusu aktif olan tiklana menunnun kendisne de aktif class i verecektir 
+
+http://localhost/test/php-cms-project/cms/admin/add-user
+route(1)=add-user
+
+$menus=[
+    "index"=>[
+        "title"=>"Homepage",
+        "icon"=>"tachometer"
+    ],
+    "users"=>[
+        "title"=>"Members",
+        "icon"=>"user",
+        "submenu"=>[
+            "add-user"=>"Add Member",
+            "get-users"=>"Show Members"
+        ]
+    ],
+
+
+    <?php foreach ($menus as $mainUrl=> $value) : ?>
+                <li class="<?php echo route(1)==$mainUrl || isset($value["submenu"][route(1)]) ? "active" : null ?>">
+
+
+ADMIN PANELINDE GENEL AYARLAR BOLUMU-SETTINGS 
+
+Biz settings ile ilgili ayarlari veritabaninda tutmak yerine bir php dosyasinda dizi halinde tutacagiz, bu sekilde hem ayarlari istedgimiz yerde kolayca kullanabiliyoruz hem de veritabani sorgusu yapmak zorunda kalmiyoruz
+admin tema mizda, wp-admin-html-template-master icinden settings.php yi aciyoruz ve icerisinden content class div inin iceriisnde kalan alani aliyoruz, ama o alanda bir problem cikiyor ondan dolauyi biz yine div content alani ile birlikte aliyoruz
+admin/view altindaki settings.php ye bunu aliyoruz
+Ne gibi ayarlar olabilir 
+Sitenin title,description,keywords,footer da copyright
+
+admin/view/settings.php de sadece li etiketi iicnde 1 tane Site Title inputu ile, Save Changes submit buttonunu birakiriz, gerisini siliyoruz
+
+Bizim seo icin cok onemli head taglari arasina yazilan title, meta taglari arasina yazilan description ve de yine meta keywords leri bunlar search engine optimization icin cok kritik oneme sahiptir
+
+title-meta title, title tag, or SEO title diye adlandirilir
+ <meta name=”description” content=”Your discription.”/>		
+ 
+ BESTPRCTISE-42 
+ DIKKAT EDELIM DIZI OLARAK POSTA FORM ICINDEN ELEMENT GONDERME YANI COGUL OLARAK GONDERME VE HIDDEN TYPE , INPUT SUBMIT I ILE, FORMUMUZUN NE ZAMAN TIKLANIP NE ZAMAN TIKLANMADINGIN KONTROL ALTINA ALMAK!!!!!
+Bizim html de head etiketleri arasinda meta ayarlari var title ayari var bunlar, search engine optimization icin cok onemlidir
+Dolayisi ile bunlar wordpress gibi tum admin panellerde mutlaka settings icerisinde bulunurlar bizde bunu yapacagiz ve bunlari dizi olarak gondermek istiyoruz 
+Bu ayarlari settings.php de ekliyoruz
+<div class="box-">
+        <form action="" metod="POST" class="form label">
+            <ul>
+                <li>
+                    <label >Site Title</label>
+                    <div class="form-content">
+                        <input type="text" name="settings[title]" id="title">
+                    </div>
+                </li>
+                <li>
+                    <label >Site Description</label>
+                    <div class="form-content">
+                        <input type="text" name="settings[description]" id="title">
+                    </div>
+                </li>
+                <li>
+                    <label >Site Keywords</label>
+                    <div class="form-content">
+                        <input type="text" name="settings[keywords]" id="title">
+                    </div>
+                </li>
+                <li class="submit">
+                  <input type="hidden" name="submit" value="1"/>
+                    <button type="submit">Save Changes</button>
+                </li>
+            </ul>
+        </form>
+        </div>
+        </div>
+
+name ler de post methodu ile gonderirken cogul olark veya dizi olarak gondermek icin, name valuesi yanina indexer koyuyoruz
+ <input type="text" name="settings[description]" id="description">
+ <input type="text" name="settings[title]" id="title">
+   <input type="text" name="settings[keywords]" id="keywords">
+
+   Ayrica bir type i hidden olan input daha olusturduk dikkat edelim 
+      <input type="hidden" name="submit" value="1"/>
+   
+      settings.php deki formu biz kendi icinde submit edecegiz ondan dolayi form action="" bos birakabiliriz 
+      Biz gonderme methodu belirtmez isek kendisi default olarak get methodu ile gondermeye calisir o yuzden methodu belirmek gerekecektir
+
+Ve ardindan da admin/controller/settings.php imiz altinda bir kontrol yapabiliriz
+
+bU HALDE IKEN EGER BIZ DENEMEK ICIN ADMIN/VIEW/SETTINGS.PHP ICINDEKI FORMU TEST1,TEST2,TEST3 DIYE DOLDURUP BUTONA BASARSAK 
+VE DE HANGI DATALARIN GELDGIINI DE GORMEK ICIN 
+ADMIN/CONTROLLER/SETTINGS ICINDE DE 
+
+EGER BUTONA TIKILANMIS ISE YANI POST GONDERILMIS ISE DIYE BIR LOGIC YAZMIS OLDUK, OLUSTRUDUGMUZ GIZLI INPUT ILE.... 
+if(isset($_POST["submit"])){
+    print_r($_POST);
+}
+require admin_view("settings");
+
+SEKLINDE YAZDIRIRSAK DATAYI ASAGIDAKI GIBI DATLAARI ALACAGIZ
+
+ <input type="text" name="settings[description]" id="description">
+ <input type="text" name="settings[title]" id="title">
+   <input type="text" name="settings[keywords]" id="keywords">
+
+Datalari name attributu icine indexer ile yazarak o datayi dizi icine atarak gondermis oluyoruz 
+
+[
+"settings"=> [
+"title"=> "TEST1",
+"description"=> "TEST2",
+"keywords"=> "TEST3"
+],
+"submit"=> "1"
+],
+
+ BESTPRCTISE-43 
+Simdi helper altina form.php olusturarak form helper larimizi yazacagiz
+
+post ve get form islemlerimiz ile iligli gonderilen input elemntlerini isset kontrolu, htmlspecialchars ile saldirilara karsi onlem alma ve sag ve soldaki bosluklari silecek sekilde return ederek, alabilecegmiz fonksiyonlar yazariz
+
+helper/form.php 
+
+function post($name){
+    if(isset($_POST[$name])){
+       return htmlspecialchars(trim($_POST[$name])); 
+    }
+}
+
+fonksiyonu sadece boyle yapip birakirsak bu fonksyon post isleminde dizi olarak gonderilen datalar icin ise yaarmayacaktir ondan dolayi da bu fonksioyona bir islem daha ekleyecegiz, gelen post degeri eger arrray ise diye bir islem yapaagiz
+
+BESTPRACTISE-44
+if kullanimi ile ilgili hemen bir bilgi 
+Eger if kosulundan sonra sadece tek satir bir kod kullanacaksak o zaman if kosul parantezlerinden sonra hicbirsey koymadanda if cumlecigini kullanabiliriz 
+
+if(is_array($_POST[$name]))
+            return array_map($_POST[$name],function($value){
+
+BESTPRACTISE-45 
+ARRAY_MAP I PHP NIN HAZIR BIRDEN FAZLA(MULTIPLE) FONKSIYONLARI ILE NASIL KULLANIRIZ PRATIK BIR SEKILDE 
+
+function post($name){
+    if(isset($_POST[$name])){
+        if(is_array($_POST[$name])):
+            return array_map(function($value){
+        return  htmlspecialchars(trim($value));
+            },$_POST[$name]);
+        endif;
+        
+       return htmlspecialchars(trim($_POST[$name])); 
+    }
+}
+
+BESTPRACTISE-46 
+SETTINGS AYARLAR DATASININ TUTULMASI 
+CMS ALTINDA SETTINGS.PHP OLUSTRDUK
+<?php 
+//Ayarlari biz bu sekilde tutacagiz 
+$settings["site_title"]="test1";
+$settings["site_description"]="test2";
+$settings["site_keywords"]="test3";
+?>
+
+BIZ SETTINS AYARLARI ILE ILGILI DATALALARI PHP DE DIZI ICINE YUKARDAKI GIBI YAZMA ISLEMININ HTML FORMATINI TUTARAK YAZACAGIZ
+YANI YUKARDA PHP ETIKETLERI ICINDE YAZILMIS KODLARIN AYNISINI HTML FORMATINDA YAZACAGIZ
+
+BESTPRACTISE-47
+PHP_EOL INBUILD PHP SABITI ILE BIZ ORNEGIN BIR PHP ETIKETLERI ICINDE YUAPTIMIZ PHP ISLEMLERININ AYNISINI HTML FORMTINDA YAZARKEN BIR ASAGI GECME ISLEMINI BU SABITI KULLANARAK YAPABILIRIZ COOK ONEMLI BU ..... 
+
+ADMIN/CONTROLLER/SETTINGS.PHP DE 
+
+BESTPRACTISE-48 
+BIZ, PHP ILE BAZEN HTML ETIKETLERINI PHP ETIKETLERI ARASINDA TIRNAKLAR ICINDE DINAMIK BIR SEKILDE OLUSTURUZU DIKKAT EDELIM BURASI COK ONEMLI  ORNEGIN 
+$html="<div>";
+$hmtl.="Hello";
+$html.="</div>";
+echo $html;
+<div>Hello</div> yazdirmis olduk bunlarin cok daha ileri seviye dinamiklesme islemleri html etiketler i php etiktleri icerisinde parcalalya prcalaya cok ileri seviye dinamiklestirme islemleri yapaibiliyoruz aklimizda olsun bu her zaman cunku bazen cok kritik noktalarda ihityacimz olacaktir
+
+
+"Ekranda php kodu eger direk yazilir ise kesinlikle onu biz goremeyiz ekrana basilamaz.. dikkat edelimmmm..oondan dolayi biz eger bir degsiken olusturup ornegin "
+$html="<?php  ?>" bu sekilde php ettiketlerini tirnaklari icinde acip kapatip icerisine de php kodlari yazarsak bunun bir string gibi tarayicidan ekranda php yazan stringler gormeyi beklemeyelim...onemli bilmezsek neden gelmiyor diye dusnuruz
+
+cms/settings.php de yazdigmz settings datlarini html formatinda asagidaki gibi yazariz 
+
+BESTPRACTISE.. STRING.. BIR DEGISKEN OLUSTURUP ICERIINDE DINAMIK ISLEMLER YAPABILYORUZ....  VE BUNU OZELLIKLE ICERIISNDE HTML ETIKETLERI VE CSS STYLE DA DINAMIK BIR SEKILDE KULLANDIGMIZ ZAMAN COK EFEKTIF ISLER ORTAYA CIKARABILIYORUZ... 
+
+if(isset($_POST['submit'])){
+    
+    $html='&lt;?>php '.PHP_EOL.PHP_EOL;//2 kez new line yapmak icin php nin inbuild new line islemi yapan sabitini 2 kez kullanmis olduk
+
+    foreach (post("settings") as $key => $value) {
+        # code...
+        $html.='$settings["'.$key.'"]="'.$value.'";'.PHP_EOL;
+    };
+  
+    echo $html;
+}
+
+Burayi yaptiktan sonra da app altina 1  tane settings.php dosyasi olusturuyoruz cms altinda olusturdugmuz settings.php yi kaldiriyoruz
+Ve olustrudugmuz $html icerigi app/settings.php icerisine yazdiracagiz file_put_contents ile
+
+BESTPRACTISE-49-
+file_put_contents-file_get_contents kullanimi 
+<?php 
+$number;
+$content="<h1>Hello world</h1>";
+file_put_contens ile elimizdeki icerigi, baska bir dosyanin icerisine yazabiliyoruz 
+1.parametreye hedef dosya yolu, ama tam yolu yazmamiz gerekir 
+2.parametrede girilecek icerigi icinde barindiran degiskeni yazmalyiz 
+$res=file_put_contents(__DIR__."/test2.php",$content);
+var_dump($res);//sonucu eger eklemis ise true int(20) veriyor ekleyemezse bool-false veriyor
+echo "<br>";
+file_get_contents ile de biz bir dosyamizin icerini string olarak aliyoruz 
+$res2=file_get_contents(__DIR__."/test2.php");
+echo $res2;
+
+
+Tekrar admin/controller/settings.php den devam edelim 
+
+if(isset($_POST['submit'])){
+    
+    $html='&lt;?>php '.PHP_EOL.PHP_EOL;//2 kez new line yapmak icin php nin inbuild new line islemi yapan sabitini 2 kez kullanmis olduk
+
+    foreach (post("settings") as $key => $value) {
+        # code...
+        $html.='$settings["'.$key.'"]="'.$value.'";'.PHP_EOL;
+    };
+    olusturudgmuz ayarlar icerigini, app altindaki settings.php sayfamiza  yazdiracgiz
+  file_put_contents(PATH."/app/settings.php",$html);
+  header("Location:".admin_site_url("settings"));
+  icinde bulundgumuz sayfaya yonlendirerek post ettikten sonra buraya geri gelsin diye 
+    
+}
+
+BURAYI ANLAMALYIZ.... 
+BURASI COK ONEMLI BURAYI BIZ DINAMIK OLARAK YAZDIK CUNKU, BIZ, 
+SETTINGS.PHP DOSYASINA DINAMIK BIR SEKILDE YAZIYORUZ YANI FORM INPUTLARINDAKKI DEGERLERI ALIYORUZ VE ONLARI, DINAMIK BIR SEKILDE APP/SETTINGS.PHP ICINE YAZDIRACAGIMIZ SETTINGS DIZISINI OLUSTURUYORUZ, YANI BIZ APP/SETTINGS.PHP DATA KAYNAGIMIZI, DINAMIK OLARAK FORM DAN GELEN DEGERLERLE POST EDILEN FORM DEGERLERI ILE YAZDIRIYORUZ VE BURDAYI BIRDE, PHP DATASI OLARAK YAZDIRIYIORUZ KI, GUNCEL VE EN SON GIRILEN VALUE DEGERLERINI SETTGINS.PHP FORMU ICINDEKI INPUT LARIN VALUE SINDE DINAMIK OALRAK APP/SETTINGS.PHP OLARAK BIR PHP DIZISI OLARAK DINAMIK BIR SEKILDE OLUSTURUGMUZ DATA DAN CEKMEK ICIN
+
+
+Normalde, bu sayfadan biz, admin/view/settings.php yi require ediyoruz ondan dolayi setting.php yi gosteriyoruz, bu sayfadan gosteriyoruz, biz bu sayfadayiz yani settings sayfasini actimigz zaman
+require admin_view("settings");
+
+BESTPRACTISE-50 
+HEADER YONLENDIRME ISLEVI..... COK KULLANILACAK
+BIZ HERHANGI BIR POST,GET VS YAPTIKAN SONRA YANI BUTONA TIKLADIKTAN SONRA DATA GONDERME ISLEMINI YAPTIKTAN SONRA, SAYFAMIZ HERHANGI BASKA BIR SAYFAYA YONLENMESINI ISTEYEBILIRZ ORNEGIN REACT TA SIGN-UP FORMUNDA BASARILI BIR SEKILDE KAYIT YAPAN KULLANICININ HOMEPAGE A YONLENDIRILMESI GIBI VEYA IZNI VE GIRISI OLMADAN HOMEPAGE E URL DEN GIRMEYE CALISAN KULLANCIININ KONTROL EDILEREK EGER GIRIS YAPMAMIS ISE ONU LOGIN FORMUNUNU OLUDUGU LOGIN.PHP E YONLENDIRME GIBI NAVIGATE GIBI AYNEN BIZIM COK ISIMIZE YARAYACAK COK KULLANAGIZ HEADER() YONLENDIRME ISLEVINI
+
+file_put_contents ile $html icerigimzi app/settings.php e yazdirmis olduk  
+
+app/settings.php iceriginde gorebiliriz
+
+<?php 
+
+$settings["title"]="TEST1";
+$settings["description"]="TEST2";
+$settings["keywords"]="TEST3";
+
+Bu islemden sonra settings.php mi, 
+app/init.php de require ile uygulamaiza dahil ediyoruz
+
+helper sayfasinin icindekileri require ettgimiz islemin hemen ustunde bu islemi yapariz 
+
+
+require(__DIR__."/settings.php");
+
+
+$helper_php_files=glob(__DIR__."/helper/*.php");
+
+foreach ($helper_php_files as $helper_file) {
+    require($helper_file);
+}
+
+Sonra helper/app icerisine 1 tane setting isminde fonksiyon olustururuz
+
+BESTPRACTISE-51
+REACTTA YAPTIGIMZ UPDATE FORM MANTIGIN AYNISI RESMEN AYNISINI FARKLI BIR SEKILDE YAPIYORUZ... 
+REACTTA DA VALUE YI BIZIM OLUSTRURUDMZU STATE DEGERI NI VERIRKEN O STATE DE DE VARSAYILAN OLARAK O INPUTA EN SON GIRILEN DATA BIZDE OLURDU O DATA ILE BASLATIRDIK ANCAK INPUT VALUESINE YAZILAN DEGISKEN, HER ZAMAN, KULLANICI INPUTA NE GIRERSE VALUE OLARAK ONU ALACAK BIR DEGISKEN OLACAK....ISTE AYNI  MANTIK.... 
+BURDA MUTHIS BIR OLAY VAR ASLLINDA BIZ VARSAYILAN DEGERLERIMIZI ADMIN/VIEW/SETTINGS.PHP DE GIRIYORUZ VE BU DEGERLERI APP/SETTINGS.PHP DIYE BIR DOSYAYA YAZDIRIYORUZ VE SONRA BURDAKI SETTINGS ARRAYI ICINDEKI DEGELER ICINDEKI TITLE,DESCRITPION,KEYWORDS KEY LERININ VALUE LERI,DAHA ONCEDEN NE DIYE FORM DA KAYDETTI ISEK DOSYAY OYLE KAYDOLACAGIZ ICIN, EN SON KAYDOLAN DEGERLER, ADMIN/VIEW/SETTINGS.PHP DEKI FORM INPUTLARINA VALUE OLARAK VARSAYILAN, DEGER OLARAN SETTINS.PHP ICINDE SETTINS ARRAY AYARLARI OLAN DOSYADAN CEKECEGIZ... BU ISLEM AYNI UPDATE ISLEMI MANTIGIDIR VE HEP BU SEKILDE YAPILIR, YANI ELIMZDE BIR TANE EN SON FORM INPUTLARI ICINE YAZILAN DEGERLERI VEREN ARRAY OLUR VE BIZ FORM VALUE LERINI ORDAKI DEGERDEN CEKERIZ AMA, AYNI ZAMANDA BIZ O VALUYE YAZDIMIGZ DEGER DE YANI DINAMIK OLARAK NERDEN GELIYORSA ONUN KAYNAGIDA KULLANICI FORM INPUTLARINI HER DEGISTITIRDIGINDE GUNCELLENEN YER OLACAKTIR KI, FORM INPUTLARI DINAMIK OLARAK KULLANICININ DEGISTIRMESINIE GORE SUREKLI VALUE YI ALSIN... 
+HARIKA BESTPRACTISE BU MANTIK VER HER ZAMAN UYGULAYACAGIMZI BIR MANTIKTIR... 
+function setting($name){
+  app/settings.php yi biz tum uygulamaya dahil etmistik init.php de ve ordan 1 tane $settings array degiskeni geliyor, o array $settings i burda kullanmak istyoruz onun icin global yapariz 
+  global $settings; 
+  Burda parametrye verilen admin/view/settinngs de name lere ne verilmis ise attribute value ler icinde bu fonksiyon kullanilip name ler icin verilen deger paaramtereye verielefcektir 
+  Bunlari, html icinde value attributu ne deger olarak kullanacagiz
+    return isset($settings[$name]) ? $settings[$name] :false;
+  //return $settings[$name] ?? false;
+ARTIK BU FONKSIYONUMUZ BIZ, admin/view/index.php de ki form inputlari icinde valuer lerin value sinie bu fonksiyonu kullanabilecegiz 
+
+admin/view/settings.php
+
+
+<input type="text" name="settings[title]" value="<?= setting("title"); ?>" id="title">
+<input type="text" name="settings[title]" value="<?= setting("title"); ?>" id="title">
+<input type="text" name="setting [description]" value="<?= setting("description"); ?>" id="description">
+
+datayi cektigmz app/settings.php ye bakacak olursak
+<?php 
+
+$settings["title"]="TEST1";
+$settings["description"]="TEST2";
+$settings["keywords"]="TEST3";
+
+SAYFAMIZI YENILEDIGMIZ ZAMAN DEFAULT OLARAK VEYA EN SON FORM INPUTLARI ICINDE GIRILIP DE KAYDEDILEN SETTINGS DATALARI INPUT LAR ICERISINDE GOZUKECEKTIR.... 
+
+BESTPRACTISE-52 
+HARIKA ADVANCE ISLEMLER YAPABILIYORUZ
+REACTTAKI BESTPRACTISE I HATIRLAYALIM HTML ISLEMMELRINDE BUNLAR COK ETKLI KULLANILIYR KI BIZDE KULLANMALYIIZ OZELLIKLE ATTRIBUTE LER UZERINDEN YURURYEREK COK ETKILI VE ADVANCE ISLEMELER YAPABLIYORZ ORNEGN DATASET I KULLANMAYI HER ZAMAN DSUNMELIYIZ AYRICA FORM INPUTLARINA NAME OLARAK KULLANIRKEN, HEPSINDE INPUT KULLANIP NAME DE NE VERIYORSAK BU INPUTLAR ICIN, YANI FORM ICIN TUTTUGMUZ ARRAY KEY LERI ICINDE AYNI ISMI VERMELIYIZ KI NAME LERI KULLANARAK, O KEY LERE DAHA PRATIK ERISEBILELIM...REACTTA HEP BU MANTIK UZERINE YURUMUSTUK(TABI JAVASCRIPTTE OBJE OLUYOR PYP DEKI DIZIININ KARSILIGI)
+BU SAYEDE KULLANICI UPDATE SAYFASINA GELDIGI ZAMAN KULLANICINN EN SON GIRDIGI VEYA KAYDETMIS OLDUGU FORM INPUT DEGERLERI KULLANICIYI KARSILAYACAKTIR 
+
+
+SETTINGS ISLEMLERIMIZIN TEMELINI OLUSTURMUS OLDUK VE OLUSTURDUGMUZ HELPER/APP ALTINDAKI SETTING FONKIYONUMUZ ILE SETTINGS AYARLARIMIZI ISTEDIGMZ HERYERDE DE KULLANABILECEGIZ ORNEGNI APP/VIEW/INDEX.PHP DE ANA SAYFADA SETTING TITLE I GOSTERMEK ISTERSEK, KI ZATEN BIZ BU AYARLARI OZELLIKLE ANA INDEX.PHP DE YANI APP/VIEW/INDEX.PHP KULLANACAGIZ..SEO OPTIMIZASYOJNU ICIN
+
+<?= setting("title"); ?>
+</body>
+</html>
+
+
+
+?>
+
 */
 
 

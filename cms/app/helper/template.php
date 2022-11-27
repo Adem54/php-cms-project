@@ -11,4 +11,16 @@ function public_url($url=false){
     //ttp://localhost/test/php-cms-project/cms/public/style.css
 }
 
+
+function admin_site_url($url=false)
+{
+    return URL. "/admin/". $url;
+    //define("URL","http://localhost/test/php-cms-project/cms/admin");
+}
+
+function admin_public_url($url=false){
+    return URL."/admin/public/".$url;
+    //http://localhost/test/php-cms-project/cms/admin/public/style.css
+}
+
 ?>
