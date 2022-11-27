@@ -7,7 +7,7 @@ function site_url($url=false)
 }
 
 function public_url($url=false){
-    return URL."/public/".$url;
+    return URL."/public/".setting("theme")."/".$url;
     //ttp://localhost/test/php-cms-project/cms/public/style.css
 }
 

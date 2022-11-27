@@ -27,10 +27,22 @@
                         <input type="text" name="settings[description]" value="<?= setting("description"); ?>" id="description">
                     </div>
                 </li>
+               
                 <li>
                     <label >Site Keywords</label>
                     <div class="form-content">
                         <input type="text" name="settings[keywords]" value="<?= setting("keywords"); ?>" id="keywords">
+                    </div>
+                </li>
+                <li>
+                    <label >Site Themes</label>
+                    <div class="form-content">
+                        <select name="settings[theme]" value="<?= setting("theme") ?>">
+                        <option value="">--choose theme--</option>
+                        <?php foreach($themes as $theme):  ?>
+                            <option <?= (setting("theme") == $theme ? "selected":null) ?> value="<?=  $theme ?>"><?php echo $theme ?> </option>
+                            <?php endforeach;?>
+                        </select>
                     </div>
                 </li>
                 <li class="submit">

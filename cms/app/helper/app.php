@@ -7,9 +7,11 @@ function controller($controllerName){
    return PATH."/app/controller/".$controllerName.".php";
 }
 
+
 function view($viewName){
+   
     $viewName=strtolower($viewName);
-    return PATH."/app/view/".$viewName.".php";
+    return PATH."/app/view/".setting("theme")."/".$viewName.".php";
 }
 
 

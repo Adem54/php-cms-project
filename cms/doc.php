@@ -1296,6 +1296,8 @@ function post($name){
 BESTPRACTISE-46 
 SETTINGS AYARLAR DATASININ TUTULMASI 
 CMS ALTINDA SETTINGS.PHP OLUSTRDUK
+BURDA BIR MANTIK, BAKIS ACISI VE ANLAYIS KAZANMALIYZI DOGRU ANLAYISI KAZANMALIYZI BU COOK ONEMLIDIR BACKEDNDDE
+BURADA BIR KONUDA DAHA NELER OLUP BITTIGININ FARKINDA OLMAMIZ GEREKIYOR CUNKU BIZ BURDA, DIKKAT EDERSEK IHITYACIMIZ OLAN SETTINGS DATA SININ BIRYERDEN GELMESINI BEKLEMIYORUZ NE YAPIYORUZ KENDIMIZ KULLANICIDAN GELECEK OLAN ILK DATA ILE OLUSTURULACAK VE DE KULLANICI ADMIN/VIEW/SETTINGS.PHP DE FORM ICINDE HER DATA YI EDIT VEYA UPDATE ETTIGINDE DE TUTTUMUZ APP/SETTINGS.PHP DATA KAYNADGI GUNCELLENCEK BIR SISTEM KURUYORUZ YANI DATA KAYNAGIMIZI DA KENDIMIZ OLUSTURYORUZ YANI MANTIK OLARAK ISTE BIRISI GETIRSIN BANA DATA VERSIN DIYE BEKLEME DIYE BIRRSEY YOK BURDA, HER ZAMAN OLUSACAK DATAYI KULLANCIIDAN ALINACAKSA KULLANICIDAN ALARAK DINAMIK BIR SEKILDE TEKRAR KULLANICIYA SUNACAK SURDURUELBILIR BIR SISTEM KURARIRZ YA DA DIREK DATA YI MANUEL OLARAK OLUSTURARAK DATAYI KULLANIRIZ
 <?php 
 //Ayarlari biz bu sekilde tutacagiz 
 $settings["site_title"]="test1";
@@ -1457,8 +1459,133 @@ SETTINGS ISLEMLERIMIZIN TEMELINI OLUSTURMUS OLDUK VE OLUSTURDUGMUZ HELPER/APP AL
 </html>
 
 
+TEMA SISTEMININ OTURTULMASI KULLANICIYA BIR DEN FAZLA TEMA SECME IMKANI VERME VE AKTIF OLAN TEMAYI GOSTERME SEKLINDE BIR SISTEM KURACAGIZ 
+(BU DA YINE BIZE, REACT TAKI E-COMMERCE PROJESINDE KULLANICIYA ON YUZDEKI LAYOUT U 2 YA DA 3 FARKLI SEKILDE SECEREK DATAYI GOREBILME FIRSATI SUNUYORDUK O MANTIK BURDA DA VAR... )
+ANA SAYFAMIZ SON KULLANICINN GORDUGU-SLUTT BRUKER,SLUTT KUNDE
+KULLANDIGI SAYFA APP/VIEW/INDEX.PHP 
+APP/VIEW ALTINDA 2 TANE ORNEGIN TEMA KLASOURMUZ OLSUN VE ORNEK OLARAK 
+1-udemy-v1
+2-netsense-v1 olsun 
 
-?>
+app/view/index.php yi bu temalarin icerisine yerletirelim 
+Ve de test edince gorebilmek iicn body kisimlarina h1 etiketi icerisinde tema isimlerini yazalim 
+
+BESTPRACTISE-53
+Once bizim sunu yapmamiz lazim, dinamik olark bu temalari ana sayfada getirmemiz gerekiyor
+yani temalarimizi dinamik olark bir dizi icine alip hangi temalar yerlestirilirse onu dinamik bir sekilde biz hicbirsey yapmadan getirecek sistemi kurmaliyz
+Simdi app altinda init.php de biz helper altinda bulunan .php uzantili dosyalairmizi glob methodu ile dinamik bir sekilde dizi icerisine atarak onlari istedgimz gibi yonetmistik, ve getirtmistik
+
+$helper_php_files=glob(__DIR__."/helper/*.php");
+
+foreach ($helper_php_files as $helper_file) {
+    require($helper_file);
+}
+
+Iste ayni mantikla bu seferde app/view altinda bulunan tema klasorlerini dinamik bir sekilde almak icin glob ile sadece klasorleri alabilecegimiz bir sistem kurup app/view altindaki klasorleri bir dizi iceriisne alarak sonra da dinamik hale getirmemiz gerekiyor
+admin/controller/settings.php ye geliriz ve orda bu islemi yapacagiz
+
+//foreach(glob(PATH."/app/view/*",GLOB_ONLYDIR)
+//glob(PATH."/app/view/*/");
+foreach(glob(PATH."/app/view/*/") as $value){
+    echo $value."<br>";
+ }
+ 
+C:\Users\ae_netsense.no\utv\test\php-cms-project\cms/app/view/netsense-v1/
+C:\Users\ae_netsense.no\utv\test\php-cms-project\cms/app/view/udemy-v1/
+
+
+
+Ama bize ne lazim sadece en sagdaki klasor isimlerini almak istiyoruz once biz ne yapiyorduk aradigmiz bir ifadenin sagindaki solundaki bosluklari veya sagindaki solundaki spesifik karakterleri de kaldirabiliyorduk rtrim ile once en sagdaki slashi sileriz 
+
+\ terslash yok normlde foreach parantezi altinda '*\' normlade ter slsh yok sadece yildiz/ yildiz ve normal slahs var  
+foreach(glob(PATH."/app/view/*\/") as $value){
+    print_r(explode("/",rtrim($value,"/")));
+}
+
+{
+0: "C:\Users\ae_netsense.no\utv\test\php-cms-project\cms",
+1: "app",
+2: "view",
+3: "netsense-v1"
+},
+{
+0: "C:\Users\ae_netsense.no\utv\test\php-cms-project\cms",
+1: "app",
+2: "view",
+3: "udemy-v1"
+},
+/*
+explode ile /  e gore diziye cevir dersek bizim erismeye calistigmiz elemntler ortaya cikacak olan 2 dizinin en elmanlari olacaklar dolayisi iel bir dizi deki en son elmena da end($array) methodu ile eriserek erismek istedimgz folder name leri istedigmiz sekilde almis olacagiz
+
+$templates=[];
+foreach(glob(PATH."/app/view/*\/") as $value){
+    $value=explode("/",rtrim($value,"/"));
+    // print_r($value);
+    $templates[]=end($value)."<br>";
+       //Son elemani bu sekilde de alabilirdik
+       //echo $value[count($value)-1]
+       netsense-v1,udemy-v1
+}
+Evet bu sekilde istedgimiz datlara erismis olduk
+//exit();
+
+Burayi bu sekilde yaptiktan sonra, yani admin/controller/settings de bu sekilde tema isimlerini aldiktan sonra 
+
+admin/view/settings.php ye geliriz ve bir Site Keywords altina bir li alani daha olustururuz ve oraya Site Themes yazacagiz
+
+BESTPRACTISE-54
+SIMDI BURDA HARIKA BIR SURDURULEBILIRLIK ORNEGI SERGILYORUZ YANI BIZ NE YAPTIK SETTINGS AYARLARA YENI BIR AYAR EKLEMEK ISTEDIK NE IDI O AYAR TEMA AYARLARI ILK ONCE NE YAPMAMIZ GEREKTI, SURDURULEBILIR VE YENI TEMA EKLENDIGINDE HIC SKNTI CIKMADAN BU DIREK SISTEME DAHIL EDEBILECEGIMIZ SEKILDE ONCE DATA OLUSTRDUK YANI ADMIN KULLANICISI SADECE GELECEK TEMA FOLDERLARINI KOYDGUMUZ YERE EKLMEEK ISTEDIGI YENI TEMA FOLDERINI YERLESTIRECEK VE BU OLUSTRDGUMUZ SISTEM SAYESINDE ADMIN/CONTROLLER/SETTINGS.PHP DE $THEME ARRYININ ICERISINE GELECEK ORDAN DA YINE ADMIN/VIEW/SETTINGS.PHP DE ISE, BIZ SURDURULEBILIR SISTEM KURMUSTUK, SETTINGS AYARLARIMIZ ICIN AYNI SISTEME ARTIK THEME YI ASAGIDAKI GIBI DAHIL EDIYORUZ VE SISTEMIMIZ TIKIR TIKIR ISLIYOR HARIKA MANTIKLA.... 
+
+  <li>
+    <label >Site Themes</label>
+    <div class="form-content">
+        <select name="settings[theme]" value="<?= setting("theme") ?>">
+        <option value="">--choose theme--</option>
+        <?php foreach($themes as $theme):  ?>
+            <option <?= setting("theme") == $theme ? "selected":null ?> value="<?=  $theme ?>"><?php echo $theme ?> </option>
+            <?php endforeach;?>
+        </select>
+    </div>
+  </li>
+
+SELECTED ATTRIBUTUNU DINAMIK BIR SEKILDE YAZARAK KULLANICI ADMIN/VIEW/SETTINGS.PHP DE NEYI SECTI ISE ONU DOSYA ICINDE TUTTUGMUZ DATAYA KAYDEDIP GUNCELLEDIKTEN SOJNRA  O DATAYI SELECTED I DINAMIK BIR SEKILDE BELIRLERKEN KULLANIYORUZ 
+
+BESTPRACTISE-55 
+BU HEP BU SEKILDE YAPILIR ASLINDA MANTIK HEP AYNIDIR.....BESTPRACTISE .... 
+ <option <?= setting("theme") == $theme ? "selected":null ?> value="<?=  $theme ?>"><?php echo $theme ?> </option>
+
+ BESTPRACTISE-56 
+ SIMDI TAMAM BACKEND TARAFINDA ADMIN TARAFINDA YAPTIK THEME SECIMIZIN DINAMIK BIR SEKILDE AMA APP ALTINDAKI VEIW DA NASIL GOSTERECEGIZ BUNU 
+ ISTE BU PROBLEMI COZMEK BIZIM PROJEDE NELER OLUP BITIYOR ANLAYIP ANLAMADIGMZI COK IYI GOSTERIR 
+
+ SIMDI BIZ SON KULLANICININ GORECEGI ON YUZ VIEW IMIZ I ADRES CUBUNU ASGIDAKI GIBI OLUNCA GELIYORDU VE APP ALTINDAKI VIEW/INDEX.PHP GELYORDU VE BU APP/CONTROLLER DA
+ require view("index"); edilmesi ile geliyordu bizim buralara dokunmadan, dogrudan helper altinda bu sistemin kuruldugu yere gidip orda dinamik olarka o an da secilen tema hangisi ise onun sisteme entegresni saglamaliyiz 
+http://localhost/test/php-cms-project/cms/
+
+app/helper/app 
+
+function view($viewName){
+    global $settings;
+    $viewName=strtolower($viewName);
+    return PATH."/app/view/".$settings["theme"]."/".$viewName.".php";
+}
+dikkat edersek, gosterilecek dosya yoluna ne yaptik tema lardan currentheme yani kullanici tarafindan hangi tema secildi ise her zaman onu koymus olduk index.php hemen oncesine ki kullanici adminde hangi temayi secerse artik son kullanici o temayi gorecek.... BESTPRACTISE...
+
+
+BESTPRACTISE-57.
+CSS DOSYALARININ DA DINAMIK YAPILMASI SECILEN THEME YE AIT CSS DOSYASININ DAHIL EDILMESINI SAGLAMAK 
+
+TAbi biz app/view/index.php de link lerde style lari href uzeirnden sayfaya dahil ederken helper/template te ayarlamistik ve biz kullanici hangi temayi secerse o temanin tamamen kendine ait de style.css i olsun diye bizii css dosyalarini koydgumzu public klasoru altina tema isimlerimizle 2 tane klasoru olusturup iclerine her bir temanin kendine ozel style.css ini oraya yerlestiririz ve de ornek olarak ikisine de farkli arka planlar ekleriz simdi, 
+
+Asgida public_url fonksiyomnumuzun css dosyalarini almasi icin biz dinamik bir sekilde kullanici hangi temayi secti ise ona ait css,js images dosyalairina erisebilmesini saglamis oluruz
+
+function public_url($url=false){
+    return URL."/public/".setting("theme")."/".$url;
+    //ttp://localhost/test/php-cms-project/cms/public/style.css
+}
+
+yine kullaci artik app/view altindaki netsense-v1 veya udemy-v1 temasi altindaki index.php lerde head icinde style.css i dahil ederken 
+  <link rel="stylesheet" href="<?= public_url("style.css"); ?>">
 
 */
 

@@ -1,4 +1,14 @@
 <?php 
+//foreach(glob(PATH."/app/view/*",GLOB_ONLYDIR)
+//glob(PATH."/app/view/*/");
+$themes=[];
+foreach(glob(PATH."/app/view/*/") as $value){
+        $value=explode("/",rtrim($value,"/"));
+      // print_r($value);
+        $themes[]=end($value);
+         //netsense-v1,udemy-v1
+}
+
 
 if(isset($_POST['submit'])){
     
