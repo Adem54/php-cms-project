@@ -9,9 +9,10 @@ function controller($controllerName){
 
 
 function view($viewName){
-   
+       
     $viewName=strtolower($viewName);
-    return PATH."/app/view/".setting("theme")."/".$viewName.".php";
+          return PATH."/app/view/".setting("theme")."/".$viewName.".php";
+   
 }
 
 

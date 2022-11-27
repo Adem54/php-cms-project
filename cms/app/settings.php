@@ -1,6 +1,9 @@
 <?php 
 
-$settings["title"]="TEST11";
-$settings["description"]="TEST22";
+$settings["title"]="Site-maintenance-mode";
+$settings["description"]="This website is on the maintenance mode!";
 $settings["keywords"]="TEST33";
-$settings["theme"]="netsense-v1";
+$settings["theme"]="udemy-v1";
+$settings["maintenance"]="1";
+$settings["maintenance-title"]="My-website-maintenance-mode";
+$settings["maintenance-description"]="My web site is on the maintenance mod, now, you can try later!!!!!!";

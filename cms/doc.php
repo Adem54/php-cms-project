@@ -1587,6 +1587,91 @@ function public_url($url=false){
 yine kullaci artik app/view altindaki netsense-v1 veya udemy-v1 temasi altindaki index.php lerde head icinde style.css i dahil ederken 
   <link rel="stylesheet" href="<?= public_url("style.css"); ?>">
 
+  BESTPRACTISE-57.
+  BAKIM MODU OZELLIGININ OLUSTURULMASI-FALSE-TRUE MANTIGINDAKI SELECT OPTIONIN ELE ALINMASI
+  Yani biz sitemizi bakim moduna alarak kullancilarin sadece bakim modu sayfasi gormesini saglayabiliriz, bakim modundan cikardigmizda da artik normal siteyi gormeye devam edebilirler
+  Dolayisi ile bu islemi de biz tabi ki ayarlarimizda ekleyecegiz bunu admin/view/settings.php  de ekleyecegiz 
+
+  SISTEMIMIZ HER ZAMAN SURDURULEBILIR OLMALDIR
+  SIMBI BIR KEZ DAHA DIKKATIMIZI CEKIYOR VE BIZIM KURDGUMUZ SURDURULEBILIR SISTEM SAYESINDE SUREKLI YENILIKLERLE GELIYORUZ VE SISTEMIMIZ BUNA DIRENMIYOR SISTEMIZMIZ GELECEK YENILIKLERE TAMAMEN ACIK BIR SEKILDE YENILIKLERI KABUL EDIYOR.....HEP MANTIK BU SEKILDE OLMALI BU HARIKA BIRSEYDIR.... 
+
+
+    <li>
+        <label >Is Maintenance Mode Open</label>
+        <div class="form-content">
+            <select name="settings[maintenance]" value="<?= setting("maintenance") ?>">
+            <option value="">--choose mode--</option>
+            
+        <option <?= (setting("maintenance") == true ? "selected":false) ?> value="<?= 1; ?>"><?php echo "Open"; ?> </option>
+        <option <?= (setting("maintenance") == false ? "selected":true) ?> value="<?= 0; ?>"><?php echo "Close"; ?> </option>
+                
+            </select>
+        </div>
+    </li>
+
+Ardindan cms/index.php ye geliyoruz ki burda ne yapiyorduk hatirlayalim, biz burda route() ile 0. index in controller daki ilk element, 1.index inde controller dan sonra gelecek olan element oldugnu ayarlamistik...   yani ana sistemi burda kurmustuk 
+Admin sayfasinda isek maintenanci gostermsin bize, cunku admin olarak bizim yontememiz lazim bakim modu vs herseyi, maintenance mode sadece son kullanici icin gecerli olacak bir durum olacaktir
+
+if(setting("maintenance")==true && route(0)!="admin"){
+    $route[0]="maintenance";
+}
+
+Ardiindan app/controller altinda 
+maintenance.php dosyasi olustururuz
+
+<?php 
+He template e ait ayri bakim modu olmasinda 1 tane bakim modu olsun sadece
+require PATH."/app/view/maintenance-mode.php";
+ 
+Ve app/view/maintenance-mode.php olusturuzz...
+Burda dikkat edersek son kullanici nereye girerse girsin eger site bakim modunda ise hep bakim modu sayfasina gidecek o sekilde ayarladik
+
+Birde bakim modunun title i ile, aciklamasini da kendine ozel admin de alan olusturarak olusturalim... 
+
+O zaman admin/view/settings.php ye gideriz 
+
+ul yi biz maintenance modunun uzerinde bitirecek sekilde yukari alip tekrar yeni bir ul acarak onun icerisine maintenance bolumu ve en alttaki button u da ayri bir ul icerisine yerlestirecegiz
+   <ul>
+
+        <li>
+        <label >Is Maintenance Mode Open?</label>
+        <div class="form-content">
+            <select name="settings[maintenance]" value="<?= setting("maintenance") ?>">
+            <option value="">--choose mode--</option>
+            
+        <option <?= (setting("maintenance") == true ? "selected":false) ?> value="<?= 1; ?>"><?php echo "Open"; ?> </option>
+        <option <?= (setting("maintenance") == false ? "selected":true) ?> value="<?= 0; ?>"><?php echo "Close"; ?> </option>
+                
+            </select>
+        </div>
+    </li>
+
+    <li>
+            <label >Maintenance title</label>
+            <div class="form-content">
+                <input type="text" name="settings[maintenance-title]" value="<?= setting("maintenance-title"); ?>" id="maintenance-title">
+            </div>
+        </li>
+        <li>
+            <label >Maintenance description</label>
+            <div class="form-content">
+            <textarea name="settings[maintenance-description]" id="maintenance-description" cols="30" rows="10"><?= setting("maintenance-description"); ?></textarea>
+            </div>
+        </li>
+    </ul>
+
+    Ardindan app/view/maintenance-mode.php ye gideriz
+    ve degerleri dinamik olarak admin de settings.php de girilen degerleri dinamik olarak ordan cekeriz... 
+
+    <title><?php echo setting("maintenance-title"); ?></title>
+</head>
+<body>
+    <h2><?php echo setting("maintenance-title"); ?></h2>
+    <p>
+    <?php echo setting("maintenance-description"); ?>
+    </p>
+</body>
+?>
 */
 
 

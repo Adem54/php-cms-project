@@ -11,6 +11,8 @@ if(!file_exists(admin_controller(route(1)))){
     $route[1]="index";
 }
 
+
+
 $menus=[
     "index"=>[
         "title"=>"Homepage",

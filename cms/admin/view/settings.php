@@ -45,11 +45,44 @@
                         </select>
                     </div>
                 </li>
+                </ul>
+                       <h1>Maintenance Settings</h1>     
+                <ul>
+
+                <li>
+                <label >Is Maintenance Mode Open?</label>
+                <div class="form-content">
+                    <select name="settings[maintenance]" value="<?= setting("maintenance") ?>">
+                    <option value="">--choose mode--</option>
+                    
+                <option <?= (setting("maintenance") == true ? "selected":false) ?> value="<?= 1; ?>"><?php echo "Open"; ?> </option>
+                <option <?= (setting("maintenance") == false ? "selected":true) ?> value="<?= 0; ?>"><?php echo "Close"; ?> </option>
+                        
+                    </select>
+                </div>
+            </li>
+
+            <li>
+                    <label >Maintenance title</label>
+                    <div class="form-content">
+                        <input type="text" name="settings[maintenance-title]" value="<?= setting("maintenance-title"); ?>" id="maintenance-title">
+                    </div>
+                </li>
+                <li>
+                    <label >Maintenance description</label>
+                    <div class="form-content">
+                    <textarea name="settings[maintenance-description]" id="maintenance-description" cols="30" rows="10"><?= setting("maintenance-description"); ?></textarea>
+                    </div>
+                </li>
+            </ul>
+            <ul>    
                 <li class="submit">
                     <input type="hidden" name="submit" value="1"/>    
                     <button type="submit">Save Changes</button>
                 </li>
-            </ul>
+          </ul>    
+
+          
         </form>
         </div>
         </div>

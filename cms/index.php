@@ -35,6 +35,10 @@ if(!file_exists(controller($route[0]))){
      $route[0]="404";
 }
 
+if(setting("maintenance")==true && route(0)!="admin"){
+    $route[0]="maintenance";
+}
+
 
 //Controller folder is ready to be required
 require (controller(route(0)));
