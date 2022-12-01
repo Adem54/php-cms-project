@@ -1672,6 +1672,388 @@ ul yi biz maintenance modunun uzerinde bitirecek sekilde yukari alip tekrar yeni
     </p>
 </body>
 ?>
+
+TEMA DOSYALARININ ENTEGRE EDILMESI 
+CMS ICIN BOOTSTRAP ILE HAZIRLANMIS BIR TEMAMIZ VAR ONUN ENTEGRASYONUNU GERCEKLESTIRECEGIZ
+
+Bir html temasini nasil parclariz, header,footer,content bunlari nasil yonetiriz bunlari ogrencegiz
+tema dosyalarini 183.Tema Dosyalari Entegresi dersinin kaynak dosyalarindan erisebiliriz
+Biz bu tema uzerinden sistemimizi yazdiktan sonra baska temalari da entegre ederek ihtiyaca gore baska ozellikler gerekiyorsa onlari da ekleyecegiz
+1-Temanin assets klasorlerinin projemizde o temaya ait assets dosyalarini yerlestirecegimzi yere tasiriz
+Oncelikle cms/public dosyasi altinda, bizim css,js,images, gibi assets dosyalarimiz bulunyor , temanin assets klasoru icindeki dosyalarin hepsini cms/public/udemy-v1 altina tasiyaagiz,
+public/udemy-v1 altindaki style.css dosyasi ni da siliyoruz artik
+
+2-temanin ana index.php dosyasini alip bizim projedeki udemy-v1 app/view/udemy-v1/index.php icerisiine kopyaliyoruz ayni sekilde 
+
+tema index.php sini app/view/udemy-v1/index.php sine aldiktan sonra 
+bu sayfada head icinde ki dahil edecegizm 1 tane css dosyasi var mi onu dahil edelim 
+
+    <!-- <link rel="stylesheet" href="assets/styles/main.css"> -->
+    <link rel=""  href="<?= public_url("styles/main.css") ?>">
+   
+  diger dosyalara baktgimz da hepsi cdn dosyalari yani bizim serverimizda barnmayan dosyalardir, sadece main.css imiz bizim serverimizda barniniyor  
+
+  COK DIKKAT ETMEMIZ GEREKEN BIR DURUM!!! 
+HERZAMAN ICIN HEADER-CONTAINER-FOOTER BIRBRINDEN BAGIMSIZ OLACAK VE 
+OZLLIKLE CONTAINER I BIR KAC PARCAYA DA BOLEBILIRIZ AMA CONTAINER DA DINAMIKLESME UZERINE COK CALISACAGIZ.... 
+
+Simdi burda temada soyle birsey yapilmis container ile footer ayni parent icerisinde birbiri icine girmis bir skeilde hazirlanmis, biz ise hemen footer  i kesip onun icinde kendi icinde oldugu parentinin ayni class olarak container diyerek ayri bir div icinde yazarak footeri bagimsiz hale getirdik ve tasariminda bozulmamasini saglamis olduk
+
+Simdi app/view/udemy-v1 tema klasorumuz altinda static ismindee bir folder-klasor olsutururuz
+static klasoru altina header.php ve footer.php yi olustururuz
+
+ANA SAYFADA YANI SON KULLANICIYA SUNACAGIMZ ANA SAYFADA NELERI BIZ ADMIN SAYFASINDAN YONETEBILIRIZ
+Oncelikle, ana temamiz yani son kullanicinin gorecegi ana syafada yani app/view/ altindaki aktif olan temamiz su an udemy-v1 in altindaki index.php oluyor yani 
+burda title, description ve keywords var ise keywordsler adminpage den gelecek onlari zaten yapmistik ama bunu nasil kullancagiz ana tema icerisinde
+
+BESTPRACTISE...DAHA YONETILEBLIR BIR SISTEM KURMAK
+app/controller/index.php ye geliriz
+burda ne yapiyoruz dikkat edelim, burda biz app altindaki view altindaki temamiza ait index.php mizin gelmesini saglayan fonksiyonu yazmistik... 
+
+
+$meta=[
+"title"=>setting("title"),
+"description"=>setting("description"),
+"keywords"=>setting("keywords")
+];
+require view("index");
+
+app/view/udemy-v1 altinda static de header da title,description ve keywordsleri i $meta degiskeninden cekebiliriz
+app/view/udemy-v1/static/header.php 
+
+ <title><?php echo $meta["title"]?></title>
+ artik dinamik olarak cms/admin/view/index.php den title deigsitirnce son kullanicinin oldugu app/view/udemy-v1/ temasinda bunu gorebilecegiz
+ 
+ header.php
+
+ <title><?php echo $meta["title"]?></title>
+    <?php if(isset($meta["description"]))  ?>
+    <meta name="description" content="<?=$meta["description"] ?>">
+ 
+    <?php if(isset($meta["keywords"]))  ?>
+    <meta name="keywords" content="<?=$meta["keywords"] ?>">   
+
+app/view/udemy-v1 de    index.php mize gelir
+mausu saga tiklayip show resource kaynagi goruntule dersek meta descriptionimzin geldigni gorebilriz
+<title>Adem Erbas web-site</title>
+    <meta name="description" content="This website is on the maintenance mode!">
+    <meta name="keywords" content="TEST33">
+
+Burda dikkat edersek title i zorunlu olarak yaptik, ama description ve keywordsu optional olarak yaptik 
+
+LOGOMUZU DA GENEL AYARLARDA OLUSTURUP ON TARAFTA SON KULLANICI DA ONU ADMIN PANELINDEN ALACAK SEKILDE DINAMIK YAPALIM
+Once nereye gidiyoruz 
+
+admin/view/settings.php ye 
+submit button in hemen uzerinde .... 
+
+ <h1>Theme Settings</h1>
+    <ul>
+        <li>
+        <label >Logo Title</label>
+            <div class="form-content">
+            <input type="text" name="settings[logo-title]" value="<?= setting("logo-title"); ?>" id="logo-title">
+            </div>
+        </li>
+    </ul>
+    <ul>    
+        <li class="submit">
+            <input type="hidden" name="submit" value="1"/>    
+            <button type="submit">Save Changes</button>
+        </li>
+          </ul>    
+
+Bu sekilde yapinca artik, logo-title i da app/settings.php deki settings datamiz icerisine yazmis oluyoruz ve de artik bu logo-title ayarini da app/view/udemy-v1/static/header.php de kullanabiliriz
+
+<a class="navbar-brand" href="#"><?= setting("logo-title");?></a>
+
+Artik database den aldigmiz logo bilgisini de son kullaniciya dinamik bir sekilde gosteriyoruz
+
+BESTPRACTISE... 
+BURDA SIMDI YAPILANLARA COK IYI DIKKAT EDELIM....NE YAPIYORUZ TAM OLARAK.. TAM OLARAK YAPTGIMZ ISLEM SUDUR ASLINDA 
+SON KULLANICIMZA SUNDUGUMUZ WEB SITEMIZI TAMAMEN KENDI KONTROLUMUZE ALACAK BIR SISTEM KURUYORUZ YANI KULLANICIYA SUNDUGMUZ HERSEYI DINAMIK BIR SEKILDE YONETEBILECEK SEKILDE SUNABILYOURZ... MANTIGI IYI KAVRARSAK DETAYLAR DAHA IYI OTURUR... 
+YAPTGIMIZ ISLEMIN HICBIRISINI EZBERE YAPMAYALIM... 
+YANI BIZ DATA ILE UGRASIYORUZ DATALARI COK IYI YONETMMELIYIZ ADMIN KULLANICISINI GIRDIGI TUM DATALARI BIZ COK KOLAYCA ALARAK SON KULLANICI YA SUNAAGMIZ WEB-SITESINDE KULLANABILMEYI HEDEFLYORUZ... MANTIGIMZ BU... 
+BENZER MANTIGI FRONT-END DINAMIK ISLEMLERINDE DE YAPACAGIZ ORDA DA, SON KULLANICILAIRIMZIN YAPACAGI TUM INTERAKTIF ISLEMLERI GIRECEGI DATALARI TIKALYARAK YAPMIS OLDUGU EYLEMLERIN HEPSINI DATLAARIMIZ ILE YONETECEGIZ KONTROL EDECEGIZ YANI USER FRONT-ENDDE HERHANGI BIR SEY YAPTIGI ZAMAN BIZ O YAPILAN ISLEMI ARKADA DATAMIZ ILE KONTROL EDIP O KULLANICIYA YAPMAK ISTEDGI INTERAKTIFLIGI SAGLAYACAGIZ... ISTE ANA MATNGIMIZ ASLINDA BIRBIRINE COK YAKIN.... 
+
+DEVAM EDELIM VE APP/VIEW/UDEMY-V1 ALTINDAKI SON KULLANICIYA GOSTERDIGMIZ TEMADAKI ARAMA KISMINI DA ADMINDEN YONETMEK ISTIYORUZ.... 
+ADMIN/VIEW/SETTINGS.PHP YE GELELIM
+
+Theme settings icin actimiz ul etiketi icinde 
+  <li>
+    <label >Search Input Placeholder</label>
+    <div class="form-content">
+    <input type="text" name="settings[search-placeholder]" value="<?= setting("search-placeholder"); ?>" id="logo-title">
+    </div>
+  </li>
+
+
+app/view/udemy-v1/static/header.php de arama ksimina
+<form class="form-inline my-2 my-lg-0">
+<input class="form-control mr-sm-2" type="search" placeholder="<?=setting("search-placeholder") ?>" aria-label="Search">
+<button class="btn btn-outline-light my-2 my-sm-0" type="submit">Ara</button>
+
+
+app/view/ de tema header imizda
+Simdide logo muza tiklayinca sitenini url ine gitmesni saglayacagiz.. 
+
+ <div class="container">
+<a class="navbar-brand" href="<?= site_url(); ?>"><?= setting("logo-title");?></a>
+zaten paramtreyi bos birakinca ana syfayai gidiyordu
+
+BIRAZ DA  FOOTER A GECELIM FOOTER I DINAMIKLESTIRMEYE BASLAYALIM.... 
+app/view/ de tema footer imizda bu sefer tersten yapiyoruz 
+reverse engineering-intentional programming...
+Yani once olusturmak istedigmz veya kullancagimz islemi yaziyoruz sonra arkada gidip onun detaylarini yaziyoruz... 
+
+ <div class="col-12 col-md pr-5">
+    <h5><?php echo setting("about")?></h5>
+    <p class="small">
+        <?= setting("about-description")?>
+    </p>
+</div>
+
+ <li>
+    <label >About</label>
+        <div class="form-content">
+        <input type="text" name="settings[about]" value="<?= setting("about"); ?>" id="about">
+        </div>
+    </li>
+    <li>
+    <label >About description</label>
+        <div class="form-content">
+        <textarea name="settings[about-description]" id="about-description" cols="30" rows="10"><?= setting("about-description"); ?></textarea>                   
+        </div>
+    </li>
+
+    Bircok ayar daha ekledik header.php,footer.php ve index.php ile ilgili ama bu ayarlar nerdeyse birbirinin aynisi oludugu icin, bunlari ayri ayri yazmadik 
+
+    SIGN-UP SAYFASININ YAPILMASI
+    Temamizin sayfalari arasinda kayit-ol.html,giris-yap.html sayfalari var
+
+    kayit-ol.html de giris-yap ve kayit ol diye en ussteki kisimda dropdown class i ile baslayan divi alarak, ana temamiizin header i icinde form etiketinin kapandigi yere yapistiririz
+
+          <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Giriş Yap
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="#">Giriş Yap</a>
+                    <a class="dropdown-item" href="#">Kayıt Ol</a>
+                </div>
+            </div>
+
+            header da ki form a da mr-3 class ini ekleriz 
+header.php de login,signup linkleri de yazilir 
+
+            <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Giriş Yap
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="<?=site_url("login"); ?>">Login</a>
+                <a class="dropdown-item" href="<?=site_url("signup"); ?>">Signup</a>
+            </div>
+
+ SIMDI NE OLUP BITTIGINI TEKRARDAN ANLAYALIM.....
+ SU ANDA LOGIN VEYA SIGNUP A TIKLAYINCA NE GELIYOR KARSIMIZA           
+
+ http://localhost/test/php-cms-project/cms/login
+ http://localhost/test/php-cms-project/cms/signup
+
+ Controller Not Found
+ geliyor neden cunku cms den sonraki login ve signup $route un 0.indexleridir ve 
+
+ cms/index.php de 
+
+ require (controller(route(0)));
+boyle birsey oldugu icin, 0.index ornegin
+
+app.php de biz 
+
+
+function controller($controllerName){
+    $controllerName=strtolower($controllerName);
+   //PATH config.php icinde constant olarak root path i proje pathini veriyordu
+   //PATH="C:.....test/php-cms-project/cms/"; 
+   return PATH."/app/controller/".$controllerName.".php";
+}
+C:..../cms/app/controller/ parametreye ne veriliyorsa o en sona geliyordu ve de yani gidiyor app/controller da ariyor.. bu girilen uzantidaki .php dosyasi var mi diye ve biz login.php ve signup.php olusturmadigmiz icin.. bulamiyor tabi ki... ondan dolayi burayi iyi anlayalim..... bizim on yuzde cms den sonra herhangi bir sayfa uzantisi girdigi zaman onu app/controller altinda arayacaktir... 
+
+function route($index){
+    global $route;
+     return isset($route[$index]) ? $route[$index] : false;
+}
+
+O zaman ne yapacagiz gidi app/controller altinda login.php ve signup.php sayfalarimiz i olusturalim
+Peki biz controller altindaki sayfalarda hangi sayfayi cagiriyorduk tabi ki, temamizi cagiriyorduk ordan... yani app/view altindaki temamizi cagiriyorduk.... yani sistmei bu sekilde kurmustuk...ki daha yonetilebilir bir sistem olusturmak icin herseyin yeri ayri idi...
+
+<?php 
+$meta=[
+    "title"=>"Sign Up"
+];
+require view("register");
+
+Yani biz contrtoller altinda cagiraagmzi sayflari require edecegiz ve de ayrica o sayfalar ile ilgili spesifik data vs islemleri de yine buralarda ele alarak cok temiz bir yapi kurmus olyoruz... Yani kurulan yapi harika bir sekilde yeni gelen degisikliklere hic direnmeden isliyor...Iste asil bu projede ogrenilecek onemli noktalardan bir tanesi boyle bir sistem kurabilmektir
+
+Ve de gidip app/view/altinda register.php sayfasi olusturacagiz.. 
+VE yine ustte altta header.php ve footer php yi koyduktan sonra, gidip tema dan kayit-ol.html den container altinda sadece kayit ol formunu kapsaayan kismi alip app/view/udemy-v1/register.php sayfamiza yapistiririz... 
+
+Simdi register.php syafamizi olustrduk, burdan veritabanina gidelim ve 1 tane users isminde tablo olusturacagiz cms veritabanimzin altinda
+
+users isminde tablo yaptgimz icin diger tablolara ait degerlerle karismamasi icin 
+user_id,user_name,user_url,user_email,user_password,user_date
+seklinde kolonlarimizi yerlestriyoruz
+
+BESTPRACTISE.... 
+Simdi de register.php de form input name lerimizi degistiririz
+Ve birde en son button umuzun hemen ustune bir type i hidden olan,name i submit olan ve value si "1" olan bir input koyariz ki butonumuz tiklanmis mi tiklanmamis mi burdan daha pratik kontrol edebilecegiz.... VE burda gondercegimz value bilgilerini ayrica daha spesifik islemlerde de duruma gore kullanabiliyoruz
+
+<input type="hidden" name="submit" value="1">
+        <button type="submit" class="btn btn-primary">Kayıt Ol</button>
+
+BESTPRACTISE... 
+STRUCTURE I IYI ANLAYALIM... VE DOGRU YAPI KURMANIN NE KADAR ETKILI OLDUGUNU BILELIM... PROJEYI BUYUTMEDE        
+SIMDI BIZIM ON YUZDE KI TEMALARIMZI KOYDGUMUZ VE GOSTERDIGMZ YER TABI KI APP/VIEW/UDEMY-V1/REGISTER.PHP 
+PEKI BURDASKI DOSYALARIMZ ILE ILGILI LOGIC LERI YAZDGIMZ YER NERESI IDI BU TA APP/CONTROLLER/REGISTER.PHP 
+
+BU DOSYA YAPISI VE HER ISLEMIN YAPILACAGI YERIN BIRBIRINDEN AYRI OLMASI VE PROJE YI YENILIKLER GELDIKCE KOLAYCA YONETEBILMEK ISIN DOGRUSU EN AZ IYI KOD YAZMAK PROBLEMLERE COZUM BULMAK KADAR ONEMLDIR......  
+
+REGISTER FORMUNDA GIRILEN DATALARIN KONTROLUNU BACKENDDE YAPMAK, BACKEND VALIDATION YAPMAK-BESTPRACTISE
+
+
+//post methodunda submit var ise demekki bu register formu gonderilmis submit edilmis butona bsailmis demektir
+if(post("submit")){
+    $username=post("username");
+    $email=post("email");
+    $password=post("password");
+    $password_again=post("password-again");
+   
+    if(!$username){//empty($username) ayni sey aslinda
+        $error="Please write your username";
+    }else if(empty($email)){//!$email demek aslinda
+        $error="Please write your email";
+    }elseif(!filter_var($email,FILTER_VALIDATE_EMAIL)){
+    //eposta nin gecerli formatta olup olmadigni php den inbuild bir method ile kontrol edebiliyoruz... BESTPRACTSIE
+        $error="Please write your email, right format";
+    }elseif(!$password){
+        $error="Please write your password";
+    }elseif($password != $password_again){
+        $error="Your passwords are not fit eachother";
+    }else {//Burda kayit islemlerini yapmaya baslayacagiz
+
+    }
+}
+
+EMAIL IMIZI DE PHP INBUILD METHODU ILE CHECK EDEBILIYORUZ DOGRU FORMATTA MI DIYE... 
+elseif(!filter_var($email,FILTER_VALIDATE_EMAIL))
+
+PEKI OLUSTURDGUMUZ HATA MESAJINI NASIL EKRANA BASACAGIZ SIMDI ONA BAKALIM..... COK ONEMLI..BESTPRACTISE BURASI COOK ONEMLI...
+APP/VIEW/UDEMY-V1/REGISTER.PHP 
+
+BESTPRACTISE...ERROR-SUCCESS MESAJLARINI VERILMESI
+BUNUN ICIN HELPER/TEMPLATE A GIDIP ORDA ERROR VE SUCCESS MESAJLARI
+ ICIN BIRER METHODU OLUSTURURUZ
+ Helper/Template
+
+ function error(){
+    global $error;
+    return $error ?? false;
+    //return isset($error) ? $error :false;
+}
+function success(){
+    global $error;
+    return $success ?? false;
+    //return isset($success) ? $success :false;
+}
+
+ve BU FONKSIYONMLARIMIZI APP/VIEW/UDEMY-V1/REGISTER.PHP DE
+
+
+<div class="col-md-4">
+    <form action="" method="post">
+        <h3 class="mb-3">Register</h3>
+    <?php if($err=error()): ?>
+        <div class="alert alert-danger" role="alert">
+        <?= $err ?>
+        </div> 
+        <?php endif;?>   
+        <?php if($success=success()): ?>
+        <div class="alert alert-success" role="alert">
+        <?= $err ?>
+        </div> 
+        <?php endif;?>
+
+
+
+ TAYFUN ERBILEN IN YAZDIGI FONKSIYONLARDA VE PHP DE KI PROJELERDE OLAYA BAKIS ACISINDAN SUNU ANLIYORUZ, PHP KULLANIMINDA COK FAZLA, DETAYLI VE DAGINIK CALISMAMIZA SEBEP OLAN DETAYLAR VAR VE DE COK FAZLA SYNTAX I BOYLE ENTERESAN _ ALTCIZGILER VS VS GIBI SEYLER COK FAZLA VE ADAM BU TARZ ISLEMLREIN HEPSI ICIN O KADAR GUZEL OKUNABLIR FONKSIYONLAR LA BU ISLEMLERI HEP ARKADA TUTUP ON TARAFTA BOYLE GOZE HOS GELEN, OKUNABILIR VE COK GUZEL GOZUKEN BIR SISTEM YAPMISSS BENCE HARIKA BIR DUSUNCE VE YAKLASIM....COK BEGENDIM BEN....       
+
+
+MUKEMMEL BESPTRACTISE...HARIKA.... 
+//post methodunda submit var ise demekki bu register formu gonderilmis submit edilmis butona bsailmis demektir
+if(post("submit")){
+    $username=post("username");
+    $email=post("email");
+    $password=post("password");
+    $password_again=post("password-again");
+   
+    if(!$username){//empty($username) ayni sey aslinda
+        $error="Please write your username";
+    }else if(empty($email)){//!$email demek aslinda
+        $error="Please write your email";
+    }elseif(!filter_var($email,FILTER_VALIDATE_EMAIL)){
+    //eposta nin gecerli formatta olup olmadigni php den inbuild bir method ile kontrol edebiliyoruz... BESTPRACTSIE
+        $error="Please write your email, right format";
+    }elseif(!$password){
+        $error="Please write your password";
+    }elseif($password != $password_again){
+        $error="Your passwords are not fit eachother";
+    }else {//Burda kayit islemlerini yapmaya baslayacagiz
+//SIMDI BURDA ILK OLARAK AYNI USERNAME VEYA AYNI EPOST ILE KAYIT VAR MI ONA BAKARIZ VAR ISE AYNI USERNAME VEYA EPOST ADRSI ILE KAYIT YAPMAYIZ VE BIR MESAJ DONERIZ 
+
+//SELECT query with positional placeholders
+//$query=$db->prepare("SELECT * FROM users where user_name = ? || user_email= ?");
+//$query->execute(["$username,$email]);
+
+//SELECT query with named placeholders
+$query=$db->prepare("SELECT * FROM users where user_name = :username || user_email= :email");
+$query->execute([":username"=>$username, ":email"=>$email]);
+$row=$query->fetch(PDO::FETCH_ASSOC);//dizi olarak dondursun diye FETCH_ASSOC kullaniyoruz
+
+//Eger boyle bir member var ise hata mesaji yazdiracgiz
+if($row){
+    $error="This username or email is already in use, please try to another one";
+}else{
+    //Eger $row yok ise demekki boyle bir username veya email de bir uyem, kullanicim yok o zaman artk bu kullaniciyi eklemeliyiz
+
+//VERITABANIMIZA BIZ PASSWORDU HASHLEYEREK KAYDETMEMLIYIZ BUU COOK ONEMLIDR.
+$hash=password_hash($password,PASSWORD_DEFAULT);
+
+//Veritabanindaki user_url SEF(SEO-ENGINE-FRIENDLY) demektir, tayfun-erbilen sitesi icinde permalink diye bir coklu dile uygun sef-link yapimi icin bir fonksiyon var o fonksiyonu alip kullanabiliiriz.. permalink fonksiyonunu helper/app.php ye aliyoruz sonra kullanaagiz..Oraya norvecce karakterleri de ekledik
+//https://www.erbilen.net/php-sef-link-fonksiyonu/
+$url=permalink($username);
+
+//  $query=$db->prepare("INSERT INTO users(user_name,user_email,user_password) VALUES(?,?,?)");  
+
+  $query=$db->prepare("INSERT INTO users SET user_name=?,user_url=?,user_email=?,user_password=?");  
+  $values = [$username,$url, $email ,$hash];
+  $result=$query->execute($values);
+  if($result){
+    $success="Your membership is created successfully, you are redirecting ";
+    //Kullaniciyi 2 saniye sonra siteye yonlendirecegiz 
+    header("Refresh:2,url=".site_url());
+    Once successfull mesaji gorecek sonra hemen 2 saniye sonra da kullanicyi ana sayfaya yonlendirecek... 
+    header("Location:site_url()"); direk yonlendir demek
+    header("Refresh:2,url=".site_url());2 saniye sonra bu urle yonlendir demektir
+    
+  }else{
+    Veritabani ile ilgili o anlik bir problem cikma durumunda veya, bizim insert islemindeki yzdimgiz degisken ismlerinde vs bir hata olusursa burya duser,sorgumuzda hata vardir demektir
+    $error="An erro occured, please try again, later";
+  }
+}
+    }
+}
+
 */
 
 

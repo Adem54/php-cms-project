@@ -63,15 +63,75 @@
             </li>
 
             <li>
-                    <label >Maintenance title</label>
-                    <div class="form-content">
-                        <input type="text" name="settings[maintenance-title]" value="<?= setting("maintenance-title"); ?>" id="maintenance-title">
-                    </div>
-                </li>
+                <label >Maintenance title</label>
+                <div class="form-content">
+                    <input type="text" name="settings[maintenance-title]" value="<?= setting("maintenance-title"); ?>" id="maintenance-title">
+                </div>
+             </li>
                 <li>
                     <label >Maintenance description</label>
                     <div class="form-content">
                     <textarea name="settings[maintenance-description]" id="maintenance-description" cols="30" rows="10"><?= setting("maintenance-description"); ?></textarea>
+                    </div>
+                </li>
+            </ul>
+            <h1>Theme Settings</h1>
+            <ul>
+                <li>
+                <label >Logo Title</label>
+                    <div class="form-content">
+                    <input type="text" name="settings[logo-title]" value="<?= setting("logo-title"); ?>" id="logo-title">
+                    </div>
+                </li>
+                <li>
+                <label >Search Input Placeholder</label>
+                    <div class="form-content">
+                    <input type="text" name="settings[search-placeholder]" value="<?= setting("search-placeholder"); ?>" id="search-placeholder">
+                    </div>
+                </li>
+               
+
+                <li>
+                <label >Welcome Title</label>
+                    <div class="form-content">
+                    <input type="text" name="settings[welcome-title]" value="<?= setting("welcome-title"); ?>" id="welcome-title">
+                    </div>
+                </li>
+                <li>
+                <label >Welcome description</label>
+                    <div class="form-content">
+                    <textarea name="settings[welcome-description]" id="welcome-description" cols="30" rows="10"><?= setting("welcome-description"); ?></textarea>                   
+                    </div>
+                </li>
+
+                <li>
+                <label >About description</label>
+                    <div class="form-content">
+                    <textarea name="settings[about-description]" id="about-description" cols="30" rows="10"><?= setting("about-description"); ?></textarea>                   
+                    </div>
+                </li>
+                <li>
+                <label >Facebook</label>
+                    <div class="form-content">
+                    <input type="text" name="settings[facebook]" value="<?= setting("facebook"); ?>" id="facebook">
+                    </div>
+                </li>
+                <li>
+                <label >Twitter</label>
+                    <div class="form-content">
+                    <input type="text" name="settings[twitter]" value="<?= setting("twitter"); ?>" id="twitter">
+                    </div>
+                </li>
+                <li>
+                <label >Instagram</label>
+                    <div class="form-content">
+                    <input type="text" name="settings[instagram]" value="<?= setting("instagram"); ?>" id="instagram">
+                    </div>
+                </li>
+                <li>
+                <label >Linkedin</label>
+                    <div class="form-content">
+                    <input type="text" name="settings[linkedin]" value="<?= setting("linkedin"); ?>" id="linkedin">
                     </div>
                 </li>
             </ul>

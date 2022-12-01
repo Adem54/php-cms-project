@@ -24,4 +24,15 @@ function admin_public_url($url=false){
     //http://localhost/test/php-cms-project/cms/admin/public/style.css
 }
 
+function error(){
+    global $error;
+    return $error ?? false;
+    //return isset($error) ? $error :false;
+}
+function success(){
+    global $success;
+    return $success ?? false;
+    //return isset($success) ? $success :false;
+}
+
 ?>

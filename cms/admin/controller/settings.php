@@ -10,6 +10,10 @@ foreach(glob(PATH."/app/view/*/") as $value){
 }
 
 
+
+
+
+
 if(isset($_POST['submit'])){
     
     $html='<?php '.PHP_EOL.PHP_EOL;//2 kez new line yapmak icin php nin inbuild new line islemi yapan sabitini 2 kez kullanmis olduk
@@ -25,6 +29,14 @@ if(isset($_POST['submit'])){
     
 }
 //Normalde, bu sayfadan biz, admin/view/settings.php yi require ediyoruz ondan dolayi setting.php yi gosteriyoruz, bu sayfadan gosteriyoruz, biz bu sayfadayiz yani settings sayfasini actimigz zaman
+
+function getUserNameOfSocial($name){
+  $value=explode("/",$name);
+  return end($value);
+};
+
+
+
 require admin_view("settings");
 
 ?>
