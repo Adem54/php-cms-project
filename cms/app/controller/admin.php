@@ -26,12 +26,15 @@ $menus=[
             "get-users"=>"Show Members"
         ]
     ],
+    "menu"=>[
+        "title"=>"Menu",
+        "icon"=>"bars"
+    ],
     "settings"=>[
         "title"=>"Settings",
         "icon"=>"cog"
     ]
     
-   
     ];
 
 

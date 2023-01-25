@@ -72,15 +72,28 @@
                 <input class="form-control mr-sm-2" type="search" placeholder="<?=setting("search-placeholder") ?>" aria-label="Search">
                 <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Ara</button>
             </form>
-            <div class="dropdown">
+                <?php if(session("user_id")) : ?>
+                    <div class="dropdown">
                 <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Giriş Yap
+                   <?php echo session("user_name");?>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="<?=site_url("profile"); ?>">Profile</a>
+                    <a class="dropdown-item" href="<?=site_url("logout"); ?>">Logout</a>
+                </div>
+            </div> 
+                 
+                <?php else: ?>
+                    <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Login
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <a class="dropdown-item" href="<?=site_url("login"); ?>">Login</a>
                     <a class="dropdown-item" href="<?=site_url("register"); ?>">Signup</a>
                 </div>
             </div>
+            <?php endif;?>    
         </div>
     </div>
 </nav>

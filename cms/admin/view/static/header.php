@@ -9,7 +9,7 @@
     <title>Document</title>
 
     <!--styles-->
-    <link rel="stylesheet" href="<?= admin_public_url("styles/main.css") ?>">
+    <link rel="stylesheet" href="<?= admin_public_url("styles/main.css?v=".time()) ?>">
 
     <!--scripts-->
     <script src="<?= admin_public_url("scripts/jquery-1.12.2.min.js") ?>"></script>
@@ -108,3 +108,13 @@
             </span>
         </a>
     </div>
+<!--content-->
+<div class="content">
+
+    <?php if (isset($error)): ?>
+        <div class="message error box-">
+            <?=$error?>
+        </div>
+    <?php endif; ?>
+
+

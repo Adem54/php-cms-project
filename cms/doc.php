@@ -1985,9 +1985,9 @@ ve BU FONKSIYONMLARIMIZI APP/VIEW/UDEMY-V1/REGISTER.PHP DE
         <?php endif;?>
 
 
-
  TAYFUN ERBILEN IN YAZDIGI FONKSIYONLARDA VE PHP DE KI PROJELERDE OLAYA BAKIS ACISINDAN SUNU ANLIYORUZ, PHP KULLANIMINDA COK FAZLA, DETAYLI VE DAGINIK CALISMAMIZA SEBEP OLAN DETAYLAR VAR VE DE COK FAZLA SYNTAX I BOYLE ENTERESAN _ ALTCIZGILER VS VS GIBI SEYLER COK FAZLA VE ADAM BU TARZ ISLEMLREIN HEPSI ICIN O KADAR GUZEL OKUNABLIR FONKSIYONLAR LA BU ISLEMLERI HEP ARKADA TUTUP ON TARAFTA BOYLE GOZE HOS GELEN, OKUNABILIR VE COK GUZEL GOZUKEN BIR SISTEM YAPMISSS BENCE HARIKA BIR DUSUNCE VE YAKLASIM....COK BEGENDIM BEN....       
 
+cmd/app/controller/register.php... de
 
 MUKEMMEL BESPTRACTISE...HARIKA.... 
 //post methodunda submit var ise demekki bu register formu gonderilmis submit edilmis butona bsailmis demektir
@@ -2009,13 +2009,13 @@ if(post("submit")){
     }elseif($password != $password_again){
         $error="Your passwords are not fit eachother";
     }else {//Burda kayit islemlerini yapmaya baslayacagiz
-//SIMDI BURDA ILK OLARAK AYNI USERNAME VEYA AYNI EPOST ILE KAYIT VAR MI ONA BAKARIZ VAR ISE AYNI USERNAME VEYA EPOST ADRSI ILE KAYIT YAPMAYIZ VE BIR MESAJ DONERIZ 
+SIMDI BURDA ILK OLARAK AYNI USERNAME VEYA AYNI EPOST ILE KAYIT VAR MI ONA BAKARIZ VAR ISE AYNI USERNAME VEYA EPOST ADRSI ILE KAYIT YAPMAYIZ VE BIR MESAJ DONERIZ 
 
-//SELECT query with positional placeholders
-//$query=$db->prepare("SELECT * FROM users where user_name = ? || user_email= ?");
-//$query->execute(["$username,$email]);
+SELECT query with positional placeholders
+$query=$db->prepare("SELECT * FROM users where user_name = ? || user_email= ?");
+$query->execute(["$username,$email]);
 
-//SELECT query with named placeholders
+SELECT query with named placeholders
 $query=$db->prepare("SELECT * FROM users where user_name = :username || user_email= :email");
 $query->execute([":username"=>$username, ":email"=>$email]);
 $row=$query->fetch(PDO::FETCH_ASSOC);//dizi olarak dondursun diye FETCH_ASSOC kullaniyoruz
@@ -2024,13 +2024,13 @@ $row=$query->fetch(PDO::FETCH_ASSOC);//dizi olarak dondursun diye FETCH_ASSOC ku
 if($row){
     $error="This username or email is already in use, please try to another one";
 }else{
-    //Eger $row yok ise demekki boyle bir username veya email de bir uyem, kullanicim yok o zaman artk bu kullaniciyi eklemeliyiz
+    Eger $row yok ise demekki boyle bir username veya email de bir uyem, kullanicim yok o zaman artk bu kullaniciyi eklemeliyiz
 
-//VERITABANIMIZA BIZ PASSWORDU HASHLEYEREK KAYDETMEMLIYIZ BUU COOK ONEMLIDR.
+VERITABANIMIZA BIZ PASSWORDU HASHLEYEREK KAYDETMEMLIYIZ BUU COOK ONEMLIDR.
 $hash=password_hash($password,PASSWORD_DEFAULT);
 
-//Veritabanindaki user_url SEF(SEO-ENGINE-FRIENDLY) demektir, tayfun-erbilen sitesi icinde permalink diye bir coklu dile uygun sef-link yapimi icin bir fonksiyon var o fonksiyonu alip kullanabiliiriz.. permalink fonksiyonunu helper/app.php ye aliyoruz sonra kullanaagiz..Oraya norvecce karakterleri de ekledik
-//https://www.erbilen.net/php-sef-link-fonksiyonu/
+Veritabanindaki user_url SEF(SEO-ENGINE-FRIENDLY) demektir, tayfun-erbilen sitesi icinde permalink diye bir coklu dile uygun sef-link yapimi icin bir fonksiyon var o fonksiyonu alip kullanabiliiriz.. permalink fonksiyonunu helper/app.php ye aliyoruz sonra kullanaagiz..Oraya norvecce karakterleri de ekledik
+https://www.erbilen.net/php-sef-link-fonksiyonu/
 $url=permalink($username);
 
 //  $query=$db->prepare("INSERT INTO users(user_name,user_email,user_password) VALUES(?,?,?)");  
@@ -2054,6 +2054,298 @@ $url=permalink($username);
     }
 }
 
+KULLANICI ONAYLI EMAIL REGISTER ISLEMI YAPILACAK ILERLEYEN ASAMALARDA.... 
+
+BU ARADA KAYIT OL ISLEMI BU SEKILDE YAPARAK BITMIS OLMUYOR ILERDE EMAIL ENTEGRASYONU YAPACAGIZ VE KULLANICININ EMAIL INE BIR ONAY MAILI GIDECEK DAHAA SONRA KULLANICI ONAYLADIGI TAKDIRDE KAYDI GECERLI OLAACAK
+
+KAYIT OLDUKTAN SONRA OTOMATIK GRIS YAPMA-LOGIN-LOGOUT SISTEMININ HAZIRLANMASI
+
+tema dosyalarindan giris-yap.html dosyasini vs code de acip iceriisnden yine kodlari alip kullanacagiz
+
+
+ CMS/APP/VIEW/LOGIN
+
+<div class="container">
+    <div class="row justify-content-md-center mt-4">
+        <div class="col-md-4">
+        <?php if($err=error()): ?>
+        <div class="alert alert-danger" role="alert">
+        <?= $err ?>
+        </div> 
+        <?php endif;?>   
+        <?php if($succ=success()): ?>
+        <div class="alert alert-success" role="alert">
+        <?= $succ ?>
+        </div> 
+        <?php endif;?>
+
+            <form action="" method="post" >
+                <h3 class="mb-3">Login</h3>
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" class="form-control" value="<?= post('username'); ?>" name="username" id="username"placeholder="Username...">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" name="password" value="<?= post('password'); ?>" class="form-control" id="password" placeholder="*******">
+                </div>
+                <input type="hidden" name="submit" value="login-action">
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+SONRA CMS/APP/CONTROLLER/LOGIN
+
+1-Dostum eger submit edilmis ise butun bu islemleri yap, yok ise hicbirsey yapma direk login forma devam et diyoruz dikkat edelim dogru anlayalim ezber yapmayalim....
+2-EGer kullanici submite basar ve form alanlarini bos birakarak gonderir ise o alanlar bize empty, bos string olarak gelir, yani input lar da name ler atanmis ise o name ler key olarak post icerisine gelecektir ama, string olarak bos gelecektir ancak tabi ki bura da bir front-end validation kullaniciyi ilk olarak karsilamalidir....bu onemli...
+if(post("submit")){
+    $username=post("username");
+    $password=post("password");
+
+    if(empty($username)){//!$username
+        $error="Username must be filled";
+    }elseif(!$password){//empty($password)
+        $error="Password must be filled";
+    }else{
+        //Artik, username ve password veritabaninda bulunup bulunmadigini kontrol edebiliriz 
+     
+        $query=$db->prepare("SELECT * FROM USERS WHERE user_name = ?");
+        $query->execute([$username]);
+        $row=$query->fetch(PDO::FETCH_ASSOC);
+        //Eger boyle bir username var ise o zaman da passwordu checke edelim var mi diye
+        if($row){
+            $checkPassword=password_verify($password,$row["user_password"]);
+            if($checkPassword){
+                $success="You logged inn successfully, you are redirecting...";
+                GIRIS YAPTIGIMIZA GORE ARTIK KULLANICI BILGILERINI SESSIONA ALABILIRIZ...COOK ONEMLI BU
+                $_SESSION["user_id"]=$row["user_id"];
+                $_SESSION["user_name"]=$row["user_name"];
+  SEssionlarimizi eger bu sayfanin require edildigi herhangi bir sayfada teste edersek session bilgilierimizin geldigini gorebilirz hatta sayfamizi defalarca yenilesek bile sesssion bilgilerini yine de koruyacaktir silmeyecektir ne zamana kadar tarayici kapatilmayana kadar, yani tarayici kapanmadigi surece actimz oturum acik kalacaktir              
+                header("Refresh:2,url=".site_url());
+
+            }else{
+            $error="Your password doesn't fit, please check your password";
+            }
+            
+        }else{
+            $error="There is not any account like that in our system, please register first, you are redirecting register page....";
+            header("Refresh:2,url=".site_url("register"));
+        }
+     
+    }
+}
+
+
+HARIKA BESTPRACTISE..... 
+HEADER DA  DE ISE BESTPRACTISE BU DUZENLEMEYI YAPMALIYIZ..... COOK ONEMLI...
+
+BIZ KULLANICI LOGIN DEN GIRDIGI DATALARI KONTROL EDIP BASARILI BIR SEKILDE GIRIS YAPTIKTAN SONRA ONUN BILGILERINDEN OZELLIKLE ID VE NAME GIBI BAZI BILGILERII SESSSIONA ATIYORUZ
+SEssionlarimizi eger bu sayfanin require edildigi herhangi bir sayfada teste edersek session bilgilierimizin geldigini gorebilirz hatta sayfamizi defalarca yenilesek bile sesssion bilgilerini yine de koruyacaktir silmeyecektir ne zamana kadar tarayici kapatilmayana kadar, yani tarayici kapanmadigi surece actimz oturum acik kalacaktir    
+ 
+helper/app  de asgidaki gibi bir fonksiyon yazariz
+
+ function session($name){
+  //  return isset($_SESSION[$name]) ? $_SESSION[$name] : false;
+    return $_SESSION[$name] ?? false;
+}
+
+GIRIS YAPMIS KULLANICININ ISMINI DE HEADER DA  KULLANICI GIRIS YAPTIGI ZAMAN ARTIK LOGIN BUTONU YERINE KULLANICI ISMINI VE DROPDOWN OLARAK DA PROFILE VE LOGOUT GOSTERECEGTIZ AMA KULLANICI CIKIS YAPMIS ISE O ZAMAN DA ORDA YINE LOGIN BUTONU ALTINDA ISE SIGNUP VE SIGNIN BUTONU GOSTERILECEK
+
+
+  <form class="form-inline my-2 my-lg-0 mr-3">
+                <input class="form-control mr-sm-2" type="search" placeholder="<?=setting("search-placeholder") ?>" aria-label="Search">
+                <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Ara</button>
+            </form>
+                  <?php if(session("user_id")) : ?>
+                    <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                   <?php echo session("user_name");?>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="<?=site_url("profile"); ?>">Profile</a>
+                    <a class="dropdown-item" href="<?=site_url("logout"); ?>">Logout</a>
+                </div>
+            </div> 
+                 
+                <?php else: ?>
+                    <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Login
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="<?=site_url("login"); ?>">Login</a>
+                    <a class="dropdown-item" href="<?=site_url("register"); ?>">Signup</a>
+                </div>
+            </div>
+            <?php endif;?>   
+
+          LOGOUT ISLEMININ YAPILMASI - HARIKA BESTPRACTISE
+          APP/CONTROLLER/LOGOUT 
+     LOGOUTN ISLEMI SADECE SESSION I SONLANDIRIP KULLANICIYI YONLENDIRME ISLMEI YAPACAGI ICIN LOGOUTN ILE ILGILI APP/VIEW ALTINDA HERHANGI BIR DOSYA OLMAYACAK SADECE CONTROLLER ALTINDA 1 LOGOUT DOSYASI OLACAK....    
+     
+     <?php 
+session_destroy();
+// header("Location:".isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : site_url());
+header("Location:".$_SERVER["HTTP_REFERER"] ?? site_url());
+//BURDA KULLANICIIYI GELDIGI  YERE GONDERIYORUZ EGER VAR ISE BIR GELDIGI YER YOK ISE O ZAMAN DA ANA SAYFAYA GONDERIYORUZ...BESTPRACTISE HARIKA BESTPRACTISE...YA
+exit();//Burdan sonra kodumuz artik calismasin diye exit yaziyoruz
+
+app/classess altinda User isminde bir class olusturup sesssion ekleme isini bu class a yaptirip app/controller altinda login.php de session ekleme islemini bu class ile yapalim manuel yapmak yerine
+
+VE BU SESSION LARIMIZI EKLEME ISLEMI YAPAN USER CLASS INI DA HEM REGISTER HEM DE LOGIN BASARILI OLDUKTAN SONRA KULANACAGIZ
+
+class User{
+
+    //parametrye $data alsin bu $data session lari alsin
+    public static function Login($data){
+        $_SESSION["user_id"]=$data["user_id"];
+        $_SESSION["user_name"]=$data["user_name"];
+    }
+}
+
+APP/CONTROLLER/LOGIN.PHP DE 
+ if($row){
+            $checkPassword=password_verify($password,$row["user_password"]);
+            if($checkPassword){
+                $success="You logged inn successfully, you are redirecting...";
+                //GIRIS YAPTIGIMIZA GORE ARTIK KULLANICI BILGILERINI SESSIONA ALABILIRIZ...COOK ONEMLI BU
+                // $_SESSION["user_id"]=$row["user_id"];
+                // $_SESSION["user_name"]=$row["user_name"];
+                User::Login($row);         
+                header("Refresh:2,url=".site_url());
+
+            }else{
+            $error="Your password doesn't fit, please check your password";
+            }
+
+APP/CONTROLLER/REGISTER.PHP DE 
+BESTPRACTISE....REGISTER ISLEMINDE DE BIZ, ID MIZI $DB DEN LASTINSERTID YE ERISEREK ALIYORUZ...
+
+
+$query=$db->prepare("INSERT INTO users SET user_name=?,user_url=?,user_email=?,user_password=?");  
+  $values = [$username,$url, $email ,$hash];
+  $result=$query->execute($values);
+  if($result){
+    $success="Your membership is created successfully, you are redirecting ";
+   User::Login([
+    "user_id"=>$db->lastInsertId(),
+    "user_name"=>$username
+   ]);
+    //Kullaniciyi 2 saniye sonra siteye yonlendirecegiz 
+    header("Refresh:2,url=".site_url());
+    //Once successfull mesaji gorecek sonra hemen 2 saniye sonra da kullanicyi ana sayfaya yonlendirecek... 
+    //header("Location:site_url()"); direk yonlendir demek
+    //header("Refresh:2,url=".site_url());2 saniye sonra bu urle yonlendir demektir   
+  }else{
+    //Veritabani ile ilgili o anlik bir problem cikma durumunda veya, bizim insert islemindeki yzdimgiz degisken ismlerinde vs bir hata olusursa burya duser,sorgumuzda hata vardir demektir
+    $error="An erro occured, please try again, later";
+  }
+
+  REFACTORING....HARIKA BESPTRACTISE....YAPTGIMIZ ISLEMLERIN KALABALIKLIGINI CLASS ICINDE STATIC FUNCTION LAR OLUSTURARAK DAHA TEMIZ VE TEK SATIRLIK HALE GETIREBILIRIZ....BESTPRACTISE--userlclass icerisine yazdgimz refactoringi incelemeliyiz
+
+APP/CONTROLLER/REGISTER DA
+
+
+BURASININ YERINE
+  $query=$db->prepare("INSERT INTO users SET user_name=?,user_url=?,user_email=?,user_password=?");  
+  $values = [$username,$url, $email ,$hash];
+  $result=$query->execute($values);
+
+  USER class inda burayi olusturarak sonra asagidaki gibi daha kisa yazabiliriz... 
+
+ public static function addUser($values){
+        $query=$db->prepare("INSERT INTO users SET user_name=?,user_url=?,user_email=?,user_password=?");  
+        return $query->execute($values);
+    }
+
+
+  $credentials = [$username,$url, $email ,$hash];
+    $result=User::addUser($credentials);
+
+    BENZER SEYI APP/CONTROLLER/LOGIN.PHP DE DE YAPARIZ
+
+      // $query=$db->prepare("SELECT * FROM USERS WHERE user_name = ?");
+        // $query->execute([$username]);
+        // $row=$query->fetch(PDO::FETCH_ASSOC);
+        $row=USER::findUserName($username);
+       
+MENU YONETIMININ HAZIRLANMASI!!!! 
+186.Menu Yonetiminin Hazirlanmasi-1 kaynak dosyalarindan dosyalari indiririz
+Ordaki dosyalarda admin-yeni-dosyalar altindaki manin.css i admin/public/styles/ altina kopyalariz   
+
+Oncelikle admin panelimizde sidebar tarafina menu yonetimi diye bir menu yonetmi  ekleyecegiz... 
+
+SU MANTIGI IYI ANLAYALIM SIMDI BIZ, ADMIN PANELINI AYARLARKEN HERSEY DEN ONCE BAZI DATALAR ELIMIZDE OLMALI EN BASTAN OLMASI GEREKEN DATALAR 
+1-YA DIREK BIR .PHP DOSYASINDA HAZIR DIREK PHP DIZISIDIR VE ONU ALIP DINAMIK BIR SEKILDE KULLANIRIZ..(MANUEL BIR SEKILDE BIZ DE OLUSTURUYOR DA OLABILIRIZ)
+2-YA O DATA VERITABANINDAN GELIR O DATAYI VERITABANINDAN CEKIP KULLANACAK BIR SISTEM KURARIZ 
+3-YA DA BU DATA BIR DOSYA DA YAZILMISTIR BIZ BU DATAYI ALIP PARSE EDERIZ BIRTAKIM STRING  VE CHAR ISLEMLERI ILE VE KULLANABILECEK HALE GETIRIP ARDINDAN BIR DIZIYE ATARIZ VE O SEKILDE DATAMIZI ALIP KULLANIRIZ... 
+4-TAMAMEN BASKA BIR SERVISDEN GELIYOR DA OLABILIRZ... BIR API VB SERVISLER DEN JSON OLARAK ALINP PHP YE CEVRIEBILRIR
+
+PROJE TEMASINI INDIRIYORUZ 
+https://github.com/tayfunerbilen/wp-admin-html-template
+Burda posts.html var
+content kismini asgida pagination kismina kadar aliriz
+ve o kismi cms/admin/view menu.php nin content ksimina alacagiz
+
+
+Front-end on yuzdeki normal menu yu ve alt menulerini tamamn dinamik yapacagiz ve bu menuleri ihtiyac olan her yerde kullanacagiz
+header ve footer da kullanilan menu listelerini dinamik olarak ayarlayacagiz, amdin panelimizdeki menu yonetimi kismmindan
+Simdi cms veritabanimizda menu isminde bir tablo olusturacagiz.. 
+4 tane alani olacak 
+menu_id(INT)
+menu_title(VARCHAR): bu header menusu, footer menusu, sosial-media menusu gibi nereye ait menu ise onun title i olacak, yonetirken daha kolay olmasi icin 
+menu_content(TEXT):Burda json formatinda tum menunun degeri tutulacak-
+menu_date(TIMESTAMP):kaydedildigi tarih, olusturuldugu tarih 
+
+Normalde wordpress te ornegin asagidaki gibi social media menusunde her bir link icin ayri ayri veritabani tablosunda tutuluyor ama biz asagidaki alani komple bir menu gibi dusunup, burdaki menuleri de json formatinda tuttacagz
+
+Social Media
+  facebook-icon ademErbas
+  twitter-icon ademSkien
+  instagram-icon adem54
+  linkedin-icon  adem-developer
+
+BU COK ISIMIZE YARAYABILIRZ...... 
+  NOT..BU ARADA EGER CSS DOSYAMIZ HEADER.PHP YE GELMIYOR ISE ADMIN TARAFINDA O ZAMAN 
+  CSS DOSYAMIZIN HER YUKLENMEDE YENILENMESINI SAGLAMAKK ICIN ASAGIDAKI METHOD IZLENEBILIR...BESTPRCTISE... 
+     <!--styles-->
+    <link rel="stylesheet" href="<?= admin_public_url("styles/main.css?v=".time()) ?>">
+    CSS I CAGIRDIGMZ YERE
+    function admin_public_url($url=false){
+    return URL."/admin/public/".$url;
+    http://localhost/test/php-cms-project/cms/admin/public/styles/main.css?v=1670168948;
+    BU SEKILDE YAPARAK SUREKLI OLARAK en son daki get request in value  si olan time() degisecegi icin cunku anlik olarak o an timestamp modunda time kac ise onu verecegi icin dolayisi ile her seferinde yenilenecek 
+    Yani yeni bir css dosyasi gibi okuyacagi icin degisiklikleri almasi daha kolay olacaktir
+    HER SAYFA YENILENDIGINDE  UNIQ VE ORJINAL BIR DEGER GELMESI GEREKEN DURUMLARDA BU YONTEM GERCEKTEN HARIKA DIR BUNA COK IHTIYACIMIZ OLABILIR..... BESTPRACTISE.. v=time()
+
+    cms/admin/view/add-menu.php de 
+    Oncelikle biz 1 tane main menu 1 tane de submenu ekleyecek alan input alani ve label lari yerlestiriyoruz ve 1 tane submenu icin 
+    addSubmenu, addMenu ve de Save gibi 3 tane de butonjmuz oluyor ve de ardinda da 
+
+    form elementi altindaki tek ul altinda tuttugmz html elemntlerinden ul ye bir id veriyoruz 
+
+     <ul id="menu">
+     BU MANTIGI BILMEK COOK ONEMLIDIR.... BESTPRACTISE.... 
+     PHP DE FRONT-END KISMINI DOGRUDAN JQUERY YA DA JAVASCRIPT KULLANIYORUZ VE DE DOGAL OLARAK BURDA ID UZERINDEN YURUYECEGIZ... YANI ONCE BIZ BIR ELEMNT ILE ILGILI ISLEM YAPARKEN O ELEMENT E ERISMEMIZ GEREKIYOR KI ARDINDAN O ELEMENT UZERINDEN HER TURLU ISLEMI YAPABILELIM DINAMIK OLARAK... EVENT HANDLING, VALUE SINI ELDE ETME, DOGRDDAN DINAMIK OLARAK CSS E DOKUNMA VS GIBI BIR SURU DINAMIK EFFEKTIF ISLEMLER YAPABILECEGIZ... 
+
+     BESTRPACTISE--PHP ICINDE JQUERY KULLANIMI....COOOOK ONEMLI COK FAZLA IHTIYACIMZ OLACAK COOK ONEMLI!
+     add-menu.php de en altta div in altinda script etiktleri acariz 
+
+     menu ekle butonu ile ilgili bir interaktiff lik olacagi icin  menu ekle butonuna da bir id verecegiz 
+
+     <a href="#" id="add-menu" class="menu-item-btn btn">Menü Ekle</a>
+     
+     <script>
+    $(function(){//Bu ifade sayfam hazir oldugunda bende hazirim demek jquery de 
+
+    })
+
+    186.DERS MENU YONETIMININ HAZIRLANMASI...
+    DERS DOSYALARI INDIRILIR
+</script>
+}
 */
 
 
