@@ -22,7 +22,7 @@ if(post("submit")){
         $row=USER::userExist($username);
         //Eger boyle bir username var ise o zaman da passwordu checke edelim var mi diye
         if($row){
-            $checkPassword=password_verify($password,$row["user_password"]);
+            $checkPassword = password_verify($password,$row["user_password"]);
             if($checkPassword){
                 $success="You logged inn successfully, you are redirecting...";
                 //GIRIS YAPTIGIMIZA GORE ARTIK KULLANICI BILGILERINI SESSIONA ALABILIRIZ...COOK ONEMLI BU

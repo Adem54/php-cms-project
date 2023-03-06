@@ -2343,7 +2343,7 @@ BU COK ISIMIZE YARAYABILIRZ......
     })
 
     186.DERS MENU YONETIMININ HAZIRLANMASI...
-    DERS DOSYALARI INDIRILIR
+    DERS DOSYALARI INDIRILIR menu html dosyasi icindeki kodlari kullanaagiz
 </script>
 }
 */

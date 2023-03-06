@@ -8,7 +8,7 @@ function admin_controller($controllerName){
 }
 
 function admin_view($viewName){
-    $viewName=strtolower($viewName);
+    $viewName = strtolower($viewName);
     return PATH."/admin/view/".$viewName.".php";
 }
 

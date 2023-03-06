@@ -33,7 +33,7 @@ $menus=[
     "settings"=>[
         "title"=>"Settings",
         "icon"=>"cog"
-    ]
+    ],
     
     ];
 
